@@ -1,0 +1,70 @@
+{{- if and .Values.nominatim.enabled .Values.nominatim.stable.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "carku.fullname" . }}-nominatim
+  labels:
+    {{- include "carku.labels" . | nindent 4 }}
+    app: nominatim
+    track: stable
+spec:
+  replicas: {{ .Values.nominatim.stable.replicas }}
+  selector:
+    matchLabels:
+      {{- include "carku.selectorLabels" . | nindent 6 }}
+      app: nominatim
+      track: stable
+  template:
+    metadata:
+      labels:
+        {{- include "carku.selectorLabels" . | nindent 8 }}
+        app: nominatim
+        track: stable
+    spec:
+      {{- with .Values.nominatim.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: nominatim-k8s
+        image: "{{ .Values.nominatim.image.repository }}:{{ .Values.nominatim.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.nominatim.image.pullPolicy }}
+        env:
+        - name: NOMINATIM_MODE
+          value: RESTORE
+        - name: NOMINATIM_DATA_LABEL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "carku.fullname" . }}-nominatim-config
+              key: DATA_LABEL
+        - name: NOMINATIM_AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "carku.fullname" . }}-nominatim-storage-secret
+              key: access-key-id
+        - name: NOMINATIM_AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "carku.fullname" . }}-nominatim-storage-secret
+              key: secret-access-key
+        - name: NOMINATIM_AWS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "carku.fullname" . }}-nominatim-config
+              key: AWS_REGION
+        - name: NOMINATIM_S3_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "carku.fullname" . }}-nominatim-config
+              key: S3_BUCKET
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /search
+            port: 8080
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+        resources:
+          {{- toYaml .Values.nominatim.resources | nindent 10 }}
+{{- end }}

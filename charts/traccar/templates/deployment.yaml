@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "traccar.fullname" . }}
+  name: {{ include "carku.fullname" . }}
   labels:
-    {{- include "traccar.labels" . | nindent 4 }}
+    {{- include "carku.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "traccar.selectorLabels" . | nindent 6 }}
+      {{- include "carku.selectorLabels" . | nindent 6 }}
   {{- with .Values.deploymentStrategy }}
   strategy:
     {{- toYaml . | nindent 4 }}
@@ -26,7 +26,7 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        {{- include "traccar.selectorLabels" . | nindent 8 }}
+        {{- include "carku.selectorLabels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -35,13 +35,13 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "traccar.serviceAccountName" . }}
+      serviceAccountName: {{ include "carku.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
         - name: config
           configMap:
-            name: {{ include "traccar.fullname" . }}
+            name: {{ include "carku.fullname" . }}
 {{- if or .Values.mysql.enabled (index .Values "redis-ha").enabled .Values.initContainers }}
       initContainers:
 {{- if .Values.mysql.enabled }}
@@ -53,7 +53,7 @@ spec:
             - 'sh'
             - '-c'
             - >
-              until nc -z -w 2 {{ include "traccar.fullname" . }}-mysql 3306 && echo mysql ok;
+              until nc -z -w 2 {{ include "carku.fullname" . }}-mysql 3306 && echo mysql ok;
                 do sleep 2;
               done
 {{- end }}
@@ -66,7 +66,7 @@ spec:
             - 'sh'
             - '-c'
             - >
-              until nc -z -w 2 {{ include "traccar.fullname" . }}-redis-ha-haproxy 6379 && echo redis ok;
+              until nc -z -w 2 {{ include "carku.fullname" . }}-redis-ha-haproxy 6379 && echo redis ok;
                 do sleep 2;
               done
 {{- end }}
@@ -82,7 +82,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: {{ include "traccar.image" . }}
+          image: {{ include "carku.image" . }}
           {{- with .Values.command }}
           command:
             {{- toYaml . | nindent 12 }}
@@ -98,7 +98,7 @@ spec:
           {{- if not .Values.configOverride }}
           envFrom:
             - secretRef:
-                name: {{ include "traccar.fullname" . }}
+                name: {{ include "carku.fullname" . }}
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -779,8 +779,8 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
           - name: "config"
-            subPath: "traccar.xml"
-            mountPath: "/opt/traccar/conf/traccar.xml"
+            subPath: "carku.xml"
+            mountPath: "/opt/carku/conf/carku.xml"
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

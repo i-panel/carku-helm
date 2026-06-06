@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nominatim
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: nominatim
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nominatim-canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nominatim
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: nominatim
+        track: canary
+    spec:
+      # Uncomment the following lines if using a private registry that requires authentication
+      # imagePullSecrets:
+      # - name: private-registry-auth
+      containers:
+      - name: nominatim-k8s
+        # Default to GitHub Container Registry. Change YOUR_GITHUB_USERNAME or use your private registry URL.
+        image: ghcr.io/i-panel/nominatim-k8s:latest
+        env:
+        - name: NOMINATIM_MODE
+          value: CREATE
+        - name: NOMINATIM_PBF_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nominatim-config
+              key: PBF_URL
+        - name: NOMINATIM_DATA_LABEL
+          valueFrom:
+            configMapKeyRef:
+              name: nominatim-config
+              key: DATA_LABEL
+        - name: NOMINATIM_AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: nominatim-storage-secret
+              key: access-key-id
+        - name: NOMINATIM_AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nominatim-storage-secret
+              key: secret-access-key
+        - name: NOMINATIM_AWS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: nominatim-config
+              key: AWS_REGION
+        - name: NOMINATIM_S3_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: nominatim-config
+              key: S3_BUCKET
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /search
+            port: 8080
+          initialDelaySeconds: 30
+          timeoutSeconds: 1

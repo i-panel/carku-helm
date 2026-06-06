@@ -1,4 +1,4 @@
-traccar:
+carku:
   # server:
   #   statistics:
   # web:
@@ -105,9 +105,9 @@ traccar:
 mysql:
   enabled: true
   auth:
-    database: "traccar"
-    username: "traccar"
-    password: "traccar"
+    database: "carku"
+    username: "carku"
+    password: "carku"
   primary:
     persistence:
       enabled: false
@@ -116,7 +116,7 @@ mysql:
       enabled: false
 
 # NOTE: When using multiple replicas, you must configure broadcast.type and broadcast.address
-#       This can be done via configOverride. See https://www.traccar.org/configuration-file/#:~:text=attributes%20to%20log.-,broadcast.type,-config
+#       This can be done via configOverride. See https://www.carku.org/configuration-file/#:~:text=attributes%20to%20log.-,broadcast.type,-config
 #       Or by setting redis.enabled=true
 replicaCount: 1
 
@@ -129,13 +129,14 @@ deploymentStrategy:
   # type: RollingUpdate
 
 image:
-  repository: traccar/traccar
+  repository: ghcr.io/i-panel/carku
   pullPolicy: IfNotPresent
-  # flavor: "" # available are alpine, debian or ubuntu
+  flavor: "alpine" # available are alpine, debian or ubuntu
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "6.14.1"
 
-imagePullSecrets: []
+imagePullSecrets:
+  - name: ghcr-pull-secret
 nameOverride: ""
 fullnameOverride: ""
 
@@ -167,7 +168,7 @@ securityContext:
 initContainers: []
 
 command: ["java", "-Xms512m", "-Xmx512m", "-Djava.net.preferIPv4Stack=true"]
-args: ["-jar", "tracker-server.jar", "conf/traccar.xml"]
+args: ["-jar", "tracker-server.jar", "conf/carku.xml"]
 
 # This allows you to use environment variables (i.e. referenced from Secrets) to use in your configuration
 # The names of the keys are identical. But, a dot (.), you'll have to use an underscore (_) and define everything in UPPERCASE
@@ -193,13 +194,13 @@ ingress:
     # kubernetes.io/tls-acme: "true"
     # cert-manager.io/cluster-issuer: "letsencrypt-prod"
   hosts:
-    - host: traccar.example.com
+    - host: carku.example.com
       paths:
         - /
   tls: []
-  # - secretName: traccar-tls
+  # - secretName: carku-tls
   #   hosts:
-  #     - traccar.example.com
+  #     - carku.example.com
 
 service:
   type: ClusterIP
@@ -917,7 +918,7 @@ redis-ha:
   persistentVolume:
     enabled: false
   redis:
-    masterGroupName: traccar
+    masterGroupName: carku
   config:
     save: '""'
   haproxy:
@@ -940,3 +941,35 @@ readinessProbe:
   periodSeconds: 60
   failureThreshold: 1
   timeoutSeconds: 1
+
+nominatim:
+  enabled: false
+  image:
+    repository: ghcr.io/i-panel/nominatim-k8s
+    tag: latest
+    pullPolicy: IfNotPresent
+  imagePullSecrets: []
+  config:
+    pbfUrl: "http://download.geofabrik.de/asia/iran-latest.osm.pbf"
+    dataLabel: "iran-260525"
+    awsRegion: "ir-thr-at1"
+    s3Bucket: "nominatim-data"
+  s3:
+    accessKeyId: ""
+    secretAccessKey: ""
+  canary:
+    enabled: false
+    replicas: 1
+  stable:
+    enabled: true
+    replicas: 3
+  resources: {}
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: nominatim.example.com
+        paths:
+          - /
+    tls: []

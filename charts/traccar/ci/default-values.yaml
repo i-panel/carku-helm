@@ -1,4 +1,4 @@
-traccar:
+carku:
   # server:
   #   statistics:
   # web:
@@ -105,9 +105,9 @@ traccar:
 mysql:
   enabled: true
   auth:
-    database: "traccar"
-    username: "traccar"
-    password: "traccar"
+    database: "carku"
+    username: "carku"
+    password: "carku"
   primary:
     persistence:
       enabled: false
@@ -116,7 +116,7 @@ mysql:
       enabled: false
 
 image:
-  repository: traccar/traccar
+  repository: carku/carku
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -157,13 +157,13 @@ ingress:
     # kubernetes.io/tls-acme: "true"
     # cert-manager.io/cluster-issuer: "letsencrypt-prod"
   hosts:
-    - host: traccar.example.com
+    - host: carku.example.com
       paths:
         - /
   tls: []
-  # - secretName: traccar-tls
+  # - secretName: carku-tls
   #   hosts:
-  #     - traccar.example.com
+  #     - carku.example.com
 
 service:
   type: ClusterIP
