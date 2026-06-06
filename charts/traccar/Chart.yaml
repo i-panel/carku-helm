@@ -14,5 +14,5 @@ dependencies:
     repository: https://dandydeveloper.github.io/charts
     condition: redis-ha.enabled
 maintainers:
-  - email: laszlo.kondas@gmail.com
-    name: kondas
+  - email: borhan.d@gmail.com
+    name: Borhan
