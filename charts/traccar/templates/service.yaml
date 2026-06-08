@@ -1,6 +1,7 @@
 {{- $fullName := include "carku.fullname" . -}}
 {{- $externalfullname := printf "external-%s" $fullName -}}
 
+# Service for Carku web UI
 apiVersion: v1
 kind: Service
 metadata:
@@ -16,9 +17,10 @@ spec:
       name: http
   selector:
     {{- include "carku.selectorLabels" . | nindent 4 }}
----
-{{- if .Values.externalService.enabled -}}
 
+{{- if .Values.externalService.enabled -}}
+---
+# External Service for device protocols (LoadBalancer)
 apiVersion: v1
 kind: Service
 metadata:
@@ -44,4 +46,25 @@ spec:
     {{- toYaml .Values.externalService.protocolPorts | nindent 4 }}
   selector:
     {{- include "carku.selectorLabels" . | nindent 4 }}
+{{- end }}
+
+{{- if .Values.nominatim.enabled }}
+---
+# Service for Nominatim (internal)
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "carku.fullname" . }}-nominatim
+  labels:
+    {{- include "carku.labels" . | nindent 4 }}
+    app: nominatim
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    {{- include "carku.selectorLabels" . | nindent 4 }}
+    app: nominatim
 {{- end }}

@@ -98,6 +98,7 @@ You can enable or disable various components of the Carku stack using the `--set
 | Component | Key | Default | Description |
 |-----------|-----|---------|-------------|
 | **MySQL** | `mysql.enabled` | `true` | Internal MySQL database for Carku. |
+| **PostgreSQL** | `postgresql.enabled` | `false` | Internal PostgreSQL database (supports TimescaleDB). |
 | **Redis HA** | `redis-ha.enabled` | `false` | Redis High Availability cluster for broadcast/coordination. |
 | **Nominatim** | `nominatim.enabled` | `false` | Geocoding service (requires S3 for data persistence). |
 | **Ingress** | `ingress.enabled` | `false` | Expose the Carku web interface via an Ingress controller. |
@@ -165,3 +166,47 @@ To access it from outside the cluster for testing:
 kubectl port-forward svc/my-carku-nominatim 8081:80
 ```
 Then visit: `http://127.0.0.1:8081/search`
+
+### PostgreSQL & TimescaleDB Integration
+For large production environments, it is recommended to use PostgreSQL with the TimescaleDB extension for optimized time-series data storage.
+
+To enable PostgreSQL with TimescaleDB:
+```bash
+helm install my-carku carku/carku \
+  --set mysql.enabled=false \
+  --set postgresql.enabled=true \
+  --set postgresql.timescaledb.enabled=true
+```
+
+### High-Scale Optimization
+To support a large number of devices and users, you can enable system-level optimizations via `values.yaml`. These settings help the operating system and the JVM handle tens of thousands of concurrent connections.
+
+#### 1. System-level (sysctl & ulimit)
+Enable the optimization block to apply kernel-level tweaks:
+```yaml
+optimization:
+  sysctl:
+    enabled: true        # Requires privileged init container
+    maxMapCount: 250000
+    fileMax: 250000
+    portRange: "1024 65535"
+  ulimit:
+    enabled: true
+    nofile: 50000
+```
+
+#### 2. Java Virtual Machine (JVM)
+Increase the heap size for the Java process to handle more data in memory:
+```yaml
+command: ["java", "-Xms1G", "-Xmx1G", "-Djava.net.preferIPv4Stack=true"]
+```
+
+#### 3. Traccar Configuration
+Set appropriate timeouts to clear stale connections:
+```yaml
+carku:
+  server:
+    timeout: 120 # Slightly higher than device reporting interval
+```
+
+**Note:** Enabling `optimization.sysctl.enabled` requires a privileged init container. Ensure your Kubernetes cluster allows privileged containers if you enable this feature.
