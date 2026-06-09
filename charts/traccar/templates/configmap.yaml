@@ -215,7 +215,7 @@ data:
 {{- end }}
 
         <!-- Filter settings -->
-{{- if eq .Values.carku.filter.enable "true" }}
+{{- if .Values.carku.filter.enable }}
         <entry key='filter.enable'>{{ .Values.carku.filter.enable }}</entry>
 {{- if .Values.carku.filter.invalid }}
         <entry key='filter.invalid'>{{ .Values.carku.filter.invalid }}</entry>
@@ -262,7 +262,7 @@ data:
 {{- if .Values.carku.filter.skipLimit }}
         <entry key='filter.skipLimit'>{{ .Values.carku.filter.skipLimit }}</entry>
 {{- end }}
-{{- if and (eq .Values.carku.filter.skipAttributes.enable "true") (trim .Values.carku.filter.skipAttributes.attributes) }}
+{{- if and .Values.carku.filter.skipAttributes.enable (trim .Values.carku.filter.skipAttributes.attributes) }}
         <entry key='filter.skipAttributes.enable'>{{ .Values.carku.filter.skipAttributes.enable }}</entry>
         <entry key='filter.skipAttributes'>{{ .Values.carku.filter.skipAttributes.attributes }}</entry>
 {{- end }}
@@ -305,13 +305,13 @@ data:
 {{- end }}
 
         <!-- Processing settings -->
-{{- if eq .Values.carku.processing.remoteAddress.enable "true" }}
+{{- if .Values.carku.processing.remoteAddress.enable }}
         <entry key='processing.remoteAddress.enable'>{{ .Values.carku.processing.remoteAddress.enable }}</entry>
 {{- end }}
-{{- if eq .Values.carku.processing.useLinkedDriver "true" }}
+{{- if .Values.carku.processing.useLinkedDriver }}
         <entry key='processing.useLinkedDriver'>{{ .Values.carku.processing.useLinkedDriver }}</entry>
 {{- end }}
-{{- if eq .Values.carku.processing.copyAttributes.enable "true" }}
+{{- if .Values.carku.processing.copyAttributes.enable }}
         {{- if (trim .Values.carku.processing.copyAttributes.attributes) }}
         <entry key='processing.copyAttributes.enable'>{{ .Values.carku.processing.copyAttributes.enable }}</entry>
         <entry key='processing.copyAttributes'>{{ .Values.carku.processing.copyAttributes.attributes }}</entry>
