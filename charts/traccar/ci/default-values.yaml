@@ -104,6 +104,8 @@ traccar:
 
 mysql:
   enabled: true
+  image:
+    repository: bitnamilegacy/mysql
   auth:
     database: "traccar"
     username: "traccar"
