@@ -42,6 +42,8 @@ spec:
         - name: config
           configMap:
             name: {{ include "traccar.fullname" . }}
+        - name: web-override
+          {{- toYaml .Values.webOverride | nindent 10 }}
 {{- if or .Values.mysql.enabled (index .Values "redis-ha").enabled .Values.initContainers }}
       initContainers:
 {{- if .Values.mysql.enabled }}
@@ -781,6 +783,8 @@ spec:
           - name: "config"
             subPath: "traccar.xml"
             mountPath: "/opt/traccar/conf/traccar.xml"
+          - name: "web-override"
+            mountPath: "/opt/traccar/override"
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

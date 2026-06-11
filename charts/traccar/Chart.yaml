@@ -2,8 +2,8 @@ apiVersion: v2
 name: traccar
 description: A Helm chart for Traccar GPS Server
 type: application
-version: 1.9.1
-appVersion: "5.10"
+version: 1.10.0
+appVersion: "6.14"
 dependencies:
   - name: mysql
     version: 9.4.8

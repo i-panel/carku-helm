@@ -942,3 +942,6 @@ readinessProbe:
   periodSeconds: 60
   failureThreshold: 1
   timeoutSeconds: 1
+
+webOverride:
+  emptyDir: {}
