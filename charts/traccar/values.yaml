@@ -168,7 +168,7 @@ securityContext:
 # A list of initContainers to run before the pod starts
 initContainers: []
 
-command: ["java", "-Xms512m", "-Xmx512m", "-Djava.net.preferIPv4Stack=true"]
+command: ["/opt/traccar/jre/bin/java", "-Xms512m", "-Xmx512m", "-Djava.net.preferIPv4Stack=true"]
 args: ["-jar", "tracker-server.jar", "conf/traccar.xml"]
 
 # This allows you to use environment variables (i.e. referenced from Secrets) to use in your configuration
@@ -942,3 +942,6 @@ readinessProbe:
   periodSeconds: 60
   failureThreshold: 1
   timeoutSeconds: 1
+
+webOverride:
+  emptyDir: {}
