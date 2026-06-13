@@ -43,7 +43,12 @@ spec:
   allocateLoadBalancerNodePorts: {{ .Values.externalService.allocateLoadBalancerNodePorts }}
 {{- end }}
   ports:
-    {{- toYaml .Values.externalService.protocolPorts | nindent 4 }}
+  {{- range .Values.externalService.protocolPorts }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .name }}
+      protocol: TCP
+  {{- end }}
   selector:
     {{- include "carku.selectorLabels" . | nindent 4 }}
 {{- end }}

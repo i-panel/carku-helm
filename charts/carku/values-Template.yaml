@@ -1130,7 +1130,7 @@ readinessProbe:
 # شما می‌توانید یکی از گزینه‌های MySQL، PostgreSQL یا H2 را انتخاب کنید.
 # You can choose between MySQL, PostgreSQL, or H2 (Embedded).
 
-# 1. MySQL (External Subchart) - بر اساس تنظیمات Compose ارسالی
+# 1. MySQL (External Subchart)
 mysql:
   enabled: true
   auth:
@@ -1140,8 +1140,10 @@ mysql:
   primary:
     persistence:
       enabled: false
+  ssl:
+    enabled: false   # set to true in production
 
-# 2. PostgreSQL & TimescaleDB (External Subchart) - بر اساس تنظیمات Compose ارسالی
+# 2. PostgreSQL & TimescaleDB (External Subchart)
 postgresql:
   enabled: false
   auth:
@@ -1149,6 +1151,8 @@ postgresql:
     username: "carku"
     password: "carku"
     postgresPassword: "carku-root-password"
+  ssl:
+    enabled: false
   timescaledb:
     enabled: true
   primary:

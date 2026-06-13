@@ -2,7 +2,7 @@ apiVersion: v2
 name: carku
 description: A Helm chart for Carku GPS Server
 type: application
-version: 1.9.9
+version: 2.0.0
 appVersion: "5.10"
 dependencies:
   - name: mysql
@@ -20,3 +20,4 @@ dependencies:
 maintainers:
   - email: borhan.d@gmail.com
     name: Borhan
+# icon: https://raw.githubusercontent.com/traccar/traccar/master/web/logo.png
