@@ -1,0 +1,30 @@
+apiVersion: v1
+entries:
+  carku:
+  - apiVersion: v2
+    appVersion: "5.10"
+    created: "2026-06-14T03:22:38.126907343Z"
+    dependencies:
+    - condition: mysql.enabled
+      name: mysql
+      repository: https://charts.bitnami.com/bitnami
+      version: 14.0.3
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 18.7.2
+    - condition: redis-ha.enabled
+      name: redis-ha
+      repository: https://dandydeveloper.github.io/charts
+      version: 4.35.10
+    description: A Helm chart for Carku GPS Server
+    digest: 94af4073f147c2f310ed001085a1388efa56bf141a3e95ccfea5379673eaf808
+    maintainers:
+    - email: borhan.d@gmail.com
+      name: Borhan
+    name: carku
+    type: application
+    urls:
+    - https://github.com/i-panel/carku-helm/releases/download/carku-1.9.0/carku-1.9.0.tgz
+    version: 1.9.0
+generated: "2026-06-14T03:22:38.126917438Z"
