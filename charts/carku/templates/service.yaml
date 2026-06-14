@@ -52,24 +52,3 @@ spec:
   selector:
     {{- include "carku.selectorLabels" . | nindent 4 }}
 {{- end }}
-
-{{- if .Values.nominatim.enabled }}
----
-# Service for Nominatim (internal)
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "carku.fullname" . }}-nominatim
-  labels:
-    {{- include "carku.labels" . | nindent 4 }}
-    app: nominatim
-spec:
-  ports:
-  - port: 80
-    targetPort: 8080
-    protocol: TCP
-    name: http
-  selector:
-    {{- include "carku.selectorLabels" . | nindent 4 }}
-    app: nominatim
-{{- end }}

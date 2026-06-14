@@ -120,12 +120,12 @@ data:
     {{- end }}
 
     <!-- Geocoder settings -->
-    {{- if or .Values.carku.geocoder .Values.nominatim.enabled }}
+    {{- if .Values.carku.geocoder }}
     {{- $geocoder := .Values.carku.geocoder | default dict }}
-    {{- if or (eq (toString $geocoder.enable) "true") (and .Values.nominatim.enabled (ne (toString $geocoder.enable) "false")) }}
+    {{- if eq (toString $geocoder.enable) "true" }}
         <entry key='geocoder.enable'>true</entry>
         <entry key='geocoder.type'>{{ $geocoder.type | default "nominatim" }}</entry>
-        <entry key='geocoder.url'>{{ $geocoder.url | default (printf "http://%s-nominatim/search" (include "carku.fullname" .)) }}</entry>
+        <entry key='geocoder.url'>{{ $geocoder.url | default "https://geocoder.carku.ir/reverse" }}</entry>
     {{- if $geocoder.key }}
         <entry key='geocoder.key'>{{ $geocoder.key }}</entry>
     {{- end }}
@@ -334,32 +334,52 @@ data:
     {{- end }}
     {{- end }}
 
-    <!-- Database settings (using environment variables for credentials) -->
+    <!-- Database settings (automatically filled from enabled subchart) -->
     {{- if or .Values.carku.database .Values.mysql.enabled .Values.postgresql.enabled .Values.h2.enabled }}
     {{- if .Values.mysql.enabled }}
         <entry key='database.driver'>com.mysql.cj.jdbc.Driver</entry>
-        <entry key='database.url'>jdbc:mysql://{{ include "carku.fullname" . }}-mysql:3306/{{ .Values.mysql.auth.database }}?{{ if .Values.mysql.ssl.enabled }}useSSL=true&amp;requireSSL=true&amp;verifyServerCertificate=false{{ else }}zeroDateTimeBehavior=round&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true&amp;useSSL=false{{ end }}&amp;allowMultiQueries=true&amp;autoReconnect=true&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;sessionVariables=sql_mode=''</entry>
+        <entry key='database.url'>jdbc:mysql://{{ include "carku.fullname" . }}-mysql:3306/{{ .Values.mysql.auth.database }}?zeroDateTimeBehavior=round&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true&amp;useSSL=false&amp;allowMultiQueries=true&amp;autoReconnect=true&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;sessionVariables=sql_mode=''</entry>
+        <entry key='database.user'>{{ .Values.mysql.auth.username }}</entry>
+        <entry key='database.password'>{{ .Values.mysql.auth.password }}</entry>
     {{- else if .Values.postgresql.enabled }}
         <entry key='database.driver'>org.postgresql.Driver</entry>
-        <entry key='database.url'>jdbc:postgresql://{{ include "carku.fullname" . }}-postgresql:5432/{{ .Values.postgresql.auth.database }}{{ if .Values.postgresql.ssl.enabled }}?ssl=true&amp;sslmode=require{{ end }}</entry>
-        <!-- credentials will be taken from environment variables, not here -->
+        <entry key='database.url'>jdbc:postgresql://{{ include "carku.fullname" . }}-postgresql:5432/{{ .Values.postgresql.auth.database }}?ssl=false</entry>
+        <entry key='database.user'>{{ .Values.postgresql.auth.username }}</entry>
+        <entry key='database.password'>{{ .Values.postgresql.auth.password }}</entry>
     {{- else if .Values.h2.enabled }}
         <entry key='database.driver'>org.h2.Driver</entry>
-    {{- if .Values.h2.memory }}
+        {{- if .Values.h2.memory }}
         <entry key='database.url'>jdbc:h2:mem:carku</entry>
-    {{- else }}
+        {{- else }}
         <entry key='database.url'>jdbc:h2:{{ .Values.h2.path | default "./data/carku.db" }}</entry>
-    {{- end }}
+        {{- end }}
     {{- else }}
-    {{- if .Values.carku.database.driverFile }}
+        <!-- External database: user can provide custom settings, or they will be taken from environment variables -->
+        {{- if .Values.carku.database.driverFile }}
         <entry key='database.driverFile'>{{ .Values.carku.database.driverFile }}</entry>
-    {{- end }}
-    {{- if .Values.carku.database.driver }}
+        {{- end }}
+        {{- if .Values.carku.database.driver }}
         <entry key='database.driver'>{{ .Values.carku.database.driver }}</entry>
-    {{- end }}
-    {{- if .Values.carku.database.url }}
+        {{- end }}
+        {{- if .Values.carku.database.url }}
         <entry key='database.url'>{{ .Values.carku.database.url }}</entry>
-    {{- end }}
+        {{- else if and .Values.carku.database.host .Values.carku.database.databaseName }}
+          {{- $dbUrl := "" }}
+          {{- if contains "mysql" (lower .Values.carku.database.driver) }}
+            {{- $dbUrl = printf "jdbc:mysql://%s:%d/%s?zeroDateTimeBehavior=round&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false&allowMultiQueries=true&autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8&sessionVariables=sql_mode=''" .Values.carku.database.host (int (.Values.carku.database.port | default 3306)) .Values.carku.database.databaseName }}
+          {{- else if contains "postgresql" (lower .Values.carku.database.driver) }}
+            {{- $dbUrl = printf "jdbc:postgresql://%s:%d/%s?ssl=false" .Values.carku.database.host (int (.Values.carku.database.port | default 5432)) .Values.carku.database.databaseName }}
+          {{- else }}
+            {{- $dbUrl = printf "jdbc:%s://%s:%d/%s" .Values.carku.database.driver .Values.carku.database.host (int (.Values.carku.database.port | default 3306)) .Values.carku.database.databaseName }}
+          {{- end }}
+        <entry key='database.url'>{{ $dbUrl }}</entry>
+        {{- end }}
+        {{- if .Values.carku.database.user }}
+        <entry key='database.user'>{{ .Values.carku.database.user }}</entry>
+        {{- end }}
+        {{- if .Values.carku.database.password }}
+        <entry key='database.password'>{{ .Values.carku.database.password }}</entry>
+        {{- end }}
     {{- end }}
     {{- if .Values.carku.database.memory }}
         <entry key='database.memory'>{{ .Values.carku.database.memory }}</entry>
@@ -928,19 +948,3 @@ data:
 
     </properties>
     {{ end }}
-
-    {{ if .Values.nominatim.enabled }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ include "carku.fullname" . }}-nominatim-config
-  labels:
-    {{- include "carku.labels" . | nindent 4 }}
-    nominatim
-data:
-  PBF_URL: {{ .Values.nominatim.config.pbfUrl | quote }}
-  DATA_LABEL: {{ .Values.nominatim.config.dataLabel | quote }}
-  AWS_REGION: {{ .Values.nominatim.config.awsRegion | quote }}
-  S3_BUCKET: {{ .Values.nominatim.config.s3Bucket | quote }}
-    {{- end }}

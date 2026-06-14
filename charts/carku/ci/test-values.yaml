@@ -11,10 +11,9 @@ carku:
   #   timeout:
   #   old:
   #   application:
-  # geocoder:
-  #   enable:
-  #   type:
-  #   url:
+  geocoder:
+    enable: true
+    url: "https://geocoder.carku.ir/reverse"
   #   onRequest:
   #   ignorePositions:
   #   processInvalidPositions:

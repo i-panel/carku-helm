@@ -107,7 +107,7 @@ initContainers: []
 
 # command - دستور اصلی (جاوا با تنظیمات حافظه)
 # command - Main command (Java with memory settings)
-command: ["java", "-Xms512m", "-Xmx512m", "-Djava.net.preferIPv4Stack=true"]
+command: ["/opt/carku/jre/bin/java", "-Xms512m", "-Xmx512m", "-Djava.net.preferIPv4Stack=true"]
 # args - آرگومان‌های دستور (فایل JAR و مسیر کانفیگ)
 # args - Command arguments (JAR file and config path)
 args: ["-jar", "tracker-server.jar", "conf/carku.xml"]
@@ -140,7 +140,7 @@ env: []
 ingress:
   # enabled - فعال کردن اینگرس (معمولاً با nginx ingress controller)
   # enabled - Enable ingress (typically with nginx ingress controller)
-  enabled: false
+  enabled: true
   # extraAnnotations - حاشیه‌نویس‌های اضافی (مثلاً برای cert-manager)
   # extraAnnotations - Additional annotations (e.g., for cert-manager)
   extraAnnotations: {}
@@ -150,10 +150,13 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
     # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # nginx.ingress.kubernetes.io/affinity: "cookie"
+    # nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    # nginx.ingress.kubernetes.io/session-cookie-expires: "86400"
   # hosts - لیست هاست‌ها و مسیرها
   # hosts - List of hosts and paths
   hosts:
-    - host: carku.example.com
+    - host: demo.carku.ir
       paths:
         - /
   # tls - تنظیمات TLS (گواهی‌نامه)
@@ -184,7 +187,7 @@ service:
 externalService:
   # enabled - فعال کردن سرویس خارجی (معمولاً LoadBalancer)
   # enabled - Enable external service (typically LoadBalancer)
-  enabled: false
+  enabled: true
   # type - نوع سرویس (LoadBalancer, NodePort, ClusterIP)
   # type - Service type (LoadBalancer, NodePort, ClusterIP)
   type: LoadBalancer
@@ -192,8 +195,6 @@ externalService:
   # annotations - Additional annotations (e.g., for MetalLB)
   annotations: {}
     # metallb.universe.tf/loadBalancerIPs: 192.168.1.100
-    # protocolPorts - لیست پورت‌های پروتکل‌های مختلف (فقط نمونه، لیست کامل در فایل اصلی موجود است)
-    # protocolPorts - List of protocol ports (sample only, full list in original)
   # loadBalancerIP: ""
   # loadBalancerSourceRanges: []
 
@@ -1033,7 +1034,7 @@ optimization:
   # sysctl - تنظیمات هسته لینوکس برای تعداد اتصالات بالا
   # sysctl - Linux kernel settings for high connection count
   sysctl:
-    enabled: false
+    enabled: true
     # vm.max_map_count - محدودیت نقشه‌برداری حافظه (برای جلوگیری از خطای حافظه در تعداد بالای ترد)
     maxMapCount: 250000
     # fs.file-max - حداکثر تعداد فایل‌های باز در کل سیستم
@@ -1054,35 +1055,18 @@ optimization:
 # resources - محدودیت‌ها و درخواست‌های منابع CPU/حافظه
 # resources - CPU/Memory resource requests and limits
 resources: {}
-  # limits:
-  #   cpu: 1000m
-  #   memory: 1024Mi
-  # requests:
-  #   cpu: 500m
-  #   memory: 512Mi
+  limits:
+    cpu: 256m
+    memory: 100Mi
+  requests:
+    cpu: 512mi
+    memory: 256Mi
 
 # autoscaling - مقیاس‌گذاری خودکار افقی (Horizontal Pod Autoscaler)
 # autoscaling - Horizontal Pod Autoscaler configuration
 autoscaling:
   enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
-# =============================================================================
-# Node Assignment / تخصیص به نودها
-# =============================================================================
-
-# nodeSelector - انتخاب نود بر اساس برچسب‌ها
-# nodeSelector - Node selection based on labels
-nodeSelector: {}
-# tolerations - تحمل‌ها برای نودهای با taint
-# tolerations - Tolerations for tainted nodes
-tolerations: []
-# affinity - قوانین وابستگی (ضد وابستگی) برای استقرار
-# affinity - Affinity/anti-affinity rules for scheduling
-affinity: {}
 
 # =============================================================================
 # Health Probes (Liveness & Readiness) / بررسی‌های سلامت
@@ -1139,7 +1123,7 @@ mysql:
     password: "carku"
   primary:
     persistence:
-      enabled: false
+      enabled: true
   ssl:
     enabled: false   # set to true in production
 
@@ -1241,7 +1225,7 @@ carku:
     nettyThreads: 0
     # statistics - آدرس ارسال آمار ناشناس (در صورت تمایل به اشتراک‌گذاری)
     # statistics - URL for anonymous statistics upload (optional)
-    statistics: "https://www.carku.ir/analytics/"
+    statistics: ""
     # forward - هاست برای ارسال خام داده‌ها (raw data forwarding) به سرور دیگر
     # forward - Host for raw data forwarding to another server
     forward: ""
@@ -1264,10 +1248,10 @@ carku:
     port: 8082
     # path - مسیر فایل‌های وب اپلیکیشن (استاتیک)
     # path - Path to static web app files
-    path: "./web"
+    path: "/opt/carku/web"
     # override - مسیر پوشه سفارشی‌سازی (برای برندینگ، لوگوها)
     # override - Path to override folder for branding (logos, etc.)
-    override: "./override"
+    override: "/opt/carku/override"
     # debug - نسخه دیباگ وب (فقط برای توسعه، کارایی پایین)
     # debug - Debug version of web app (development only, lower performance)
     debug: false
@@ -1282,7 +1266,7 @@ carku:
     sessionTimeout: ""
     # serviceAccountToken - توکن برای حساب ادمین مجازی (بازیابی دسترسی در صورت قفل شدن)
     # serviceAccountToken - Token for virtual admin account (access recovery)
-    serviceAccountToken: ""
+    serviceAccountToken: "df0a036b88d8598e3f966b0d2b388c446855a13f3162070840cf475f44b83173"
     # origin - مقدار هدر CORS Origin (برای دسترسی از دامنه دیگر)
     # origin - CORS Origin header value (for cross-domain access)
     origin: ""
@@ -1291,13 +1275,13 @@ carku:
     cacheControl: "max-age=3600,public"
     # localizationPath - مسیر فایل‌های ترجمه (زبان‌های مختلف)
     # localizationPath - Path to localization/translation files
-    localizationPath: "./templates/translations"
+    localizationPath: "/opt/carku/templates/translations"
     # requestLogPath - مسیر فایل لاگ درخواست‌های Jetty (شامل الگوی yyyy_mm_dd)
     # requestLogPath - Jetty request log path (must include yyyy_mm_dd pattern)
-    requestLogPath: ""
+    requestLogPath: "/opt/carku/logs/carku-demo-yyyy_mm_dd.request.log"
     # requestLogRetainDays - تعداد روز نگهداری لاگ‌های چرخشی (پس از آن حذف شوند)
     # requestLogRetainDays - Days to retain rotated request logs
-    requestLogRetainDays: ""
+    requestLogRetainDays: "7"
     # disableHealthCheck - غیرفعال کردن health check سیستم‌دی (برای جلوگیری از لاگ‌های اضافی)
     # disableHealthCheck - Disable systemd health checks (to reduce log noise)
     disableHealthCheck: true
@@ -1312,7 +1296,7 @@ carku:
     persistSession: false
     # web.url - آدرس عمومی وب اپ (برای نوتیفیکیشن، گزارشات، OpenID)
     # web.url - Public web app URL (for notifications, reports, OpenID)
-    url: ""
+    url: "demo.carku.ir"
     # showUnknownDevices - نمایش لاگ دستگاه‌های ناشناس در رابط کاربری
     # showUnknownDevices - Show logs from unknown devices in web UI
     showUnknownDevices: false
@@ -1324,7 +1308,7 @@ carku:
     shareDeviceReports: false
     # mcp.enable - فعال کردن سرویس MCP (Model Context Protocol) برای AI
     # mcp.enable - Enable MCP service for AI integration
-    mcpEnable: false
+    mcpEnable: true
 
   # -------------------------------------------------------------------------
   # Geocoder (Reverse Geocoding) / تنظیمات جغرافیای معکوس (تبدیل مختصات به آدرس)
@@ -1339,25 +1323,24 @@ carku:
     # url - آدرس سرور (برای Nominatim یا Gisgraphy داخلی)
     # url - Server URL (for self-hosted Nominatim or Gisgraphy)
     url: "https://geocoder.carku.ir/reverse"
-    url: ""
     # key - کلید API (برای سرویس‌های تجاری مانند Google, LocationIQ)
     # key - API key (for commercial providers like Google, LocationIQ)
     key: ""
     # language - زبان خروجی آدرس (مثلاً fa, en, de)
     # language - Output language (e.g., fa, en, de)
-    language: ""
+    language: "fa"
     # format - فرمت آدرس (پیش‌فرض: %h %r, %t, %s, %c)
     # format - Address format (default: %h %r, %t, %s, %c)
-    format: ""
+    # format: "%h %r, %t, %s, %c"
     # cacheSize - اندازه کش نتایج geocoding (تعداد آیتم‌ها)
     # cacheSize - Geocoding results cache size (number of items)
-    cacheSize: ""
+    # cacheSize: ""
     # ignorePositions - غیرفعال کردن geocoding خودکار برای همه موقعیت‌ها (فقط در صورت درخواست)
     # ignorePositions - Disable automatic geocoding for all positions (on-demand only)
     ignorePositions: true
     # reuseDistance - فاصله کمترین متر برای درخواست مجدد (استفاده از آدرس آخر)
     # reuseDistance - Minimum distance (meters) to request new geocoding (reuse last address)
-    reuseDistance: ""
+    reuseDistance: "10"
     # onRequest - انجام geocoding در زمان تهیه گزارش و نوتیفیکیشن (نه هنگام ذخیره موقعیت)
     # onRequest - Perform geocoding when preparing reports/notifications (not on save)
     onRequest: true
@@ -1406,7 +1389,7 @@ carku:
     type: "carku"
     # url - آدرس سرویس map matcher (در صورت وجود سرور اختصاصی)
     # url - Map matcher service URL (if self-hosted)
-    url: ""
+    url: "https://geocoder.carku.ir/snap"
     # key - کلید API سرویس
     # key - API key for the service
     key: ""
@@ -1569,7 +1552,7 @@ carku:
     driverFile: ""
     # driver - کلاس درایور JDBC (مثلاً org.postgresql.Driver)
     # driver - JDBC driver class (e.g., org.postgresql.Driver)
-    driver: ""
+    driver: "org.postgresql.Driver"
     # url - آدرس اتصال JDBC کامل
     # url - Full JDBC connection URL
     url: ""
@@ -1581,7 +1564,7 @@ carku:
     password: ""
     # changelog - مسیر فایل changelog Liquibase (مدیریت schema)
     # changelog - Liquibase changelog file path (schema management)
-    changelog: "./schema/changelog-master.xml"
+    changelog: "/opt/carku/schema/changelog-master.xml"
     # maxPoolSize - حداکثر تعداد اتصالات همزمان در پول (HikariCP)
     # maxPoolSize - Maximum number of connections in the pool (HikariCP)
     maxPoolSize: 20
@@ -1614,7 +1597,7 @@ carku:
     saveEmpty: false
     # maxLifetime - حداکثر عمر اتصال در پول (میلی‌ثانیه) - جلوگیری از اتصالات قدیمی
     # maxLifetime - Maximum connection lifetime in pool (ms) - prevents stale connections
-    maxLifetime: ""
+    # maxLifetime: ""
     # positionBatchInterval - فاصله زمانی برای دسته‌بندی درج موقعیت‌ها (میلی‌ثانیه) - 0 = غیرفعال
     # positionBatchInterval - Batch insert interval (ms) - 0 = disabled
     positionBatchInterval: 0
@@ -1658,7 +1641,7 @@ carku:
     status:
       # enable - تولید رویداد deviceOnline/deviceOffline هنگام تغییر وضعیت
       # enable - Generate device connection status events (online/offline)
-      enable: false
+      enable: true
     # motion - رویداد حرکت (تشخیص حرکت)
     motion:
       # speedThreshold - سرعت آستانه برای تشخیص حرکت (گره، پیش‌فرض 0.01)
@@ -1705,7 +1688,7 @@ carku:
   media:
     # path - مسیر پوشه ذخیره فایل‌ها (زیرپوشه به ازای هر دستگاه ایجاد می‌شود)
     # path - Path to media files storage (subfolders per device created automatically)
-    path: "./media"
+    path: "/opt/carku/media"
 
   # templates - تنظیمات قالب‌های ایمیل و گزارش
   templates:
@@ -1717,10 +1700,10 @@ carku:
   users:
     # defaultDeviceLimit - حداکثر تعداد دستگاه برای کاربران خودثبت‌نام (-1 = بدون محدودیت)
     # defaultDeviceLimit - Device limit for self-registered users (-1 = unlimited)
-    defaultDeviceLimit: -1
+    defaultDeviceLimit: 5
     # defaultExpirationDays - انقضای پیش‌فرض کاربران خودثبت‌نام (روز) - خالی = بدون انقضا
     # defaultExpirationDays - Default user expiration for self-registered users (days)
-    defaultExpirationDays: ""
+    defaultExpirationDays: 7
 
   # -------------------------------------------------------------------------
   # Position Forwarding (to external systems) / ارسال موقعیت‌ها به سیستم خارجی
@@ -1921,16 +1904,16 @@ carku:
     expiration:
       # user - فعال کردن اعلان انقضای کاربر
       # user - Enable user expiration notification
-      user: false
+      user: true
       # userReminder - مدت زمان قبل از انقضا برای ارسال یادآوری (میلی‌ثانیه)
       # userReminder - Reminder time before expiration (ms)
-      userReminder: ""
+      userReminder: "200000"
       # device - فعال کردن اعلان انقضای دستگاه
       # device - Enable device expiration notification
-      device: false
+      device: true
       # deviceReminder - مدت زمان قبل از انقضای دستگاه برای یادآوری
       # deviceReminder - Device expiration reminder (ms)
-      deviceReminder: ""
+      deviceReminder: "200000"
     # blockUsers - لیست شناسه‌های کاربرانی که اعلان برایشان مسدود شود (جدا شده با کاما)
     # blockUsers - List of user IDs to block notifications (comma-separated)
     blockUsers: ""
@@ -1941,7 +1924,7 @@ carku:
   report:
     # periodLimit - حداکثر مدت زمان مجاز برای گزارش (ثانیه) - 0 = بدون محدودیت
     # periodLimit - Maximum allowed report period (seconds) - 0 = unlimited
-    periodLimit: ""
+    periodLimit: 0
     # fastThreshold - آستانه استفاده از گزارش سریع (ثانیه) - گزارش‌های طولانی‌تر با جزئیات کامل
     # fastThreshold - Threshold for fast reports (seconds) - longer reports use full details
     fastThreshold: 86400  # 1 day
@@ -1980,27 +1963,27 @@ carku:
   # -------------------------------------------------------------------------
   # Coordinates Filter / فیلتر مختصات (برای جلوگیری از جهش‌های ناگهانی)
   # -------------------------------------------------------------------------
-  coordinates:
-    # filter - فعال کردن جایگزینی مختصات با آخرین مختصات در صورت تغییر کمتر از minError یا بیشتر از maxError
-    # filter - Replace coordinates with last known if change less than minError or more than maxError
-    filter: false
-    # minError - حداقل خطای مجاز تغییر (متر) - تغییرات کمتر از این مقدار نادیده گرفته شوند
-    # minError - Minimum error distance (meters) - smaller changes ignored
-    minError: ""
-    # maxError - حداکثر خطای مجاز تغییر (متر) - تغییرات بیشتر از این مقدار نادیده گرفته شوند
-    # maxError - Maximum error distance (meters) - larger changes ignored
-    maxError: ""
+  # coordinates:
+  #   # filter - فعال کردن جایگزینی مختصات با آخرین مختصات در صورت تغییر کمتر از minError یا بیشتر از maxError
+  #   # filter - Replace coordinates with last known if change less than minError or more than maxError
+  #   filter: false
+  #   # minError - حداقل خطای مجاز تغییر (متر) - تغییرات کمتر از این مقدار نادیده گرفته شوند
+  #   # minError - Minimum error distance (meters) - smaller changes ignored
+  #   minError: ""
+  #   # maxError - حداکثر خطای مجاز تغییر (متر) - تغییرات بیشتر از این مقدار نادیده گرفته شوند
+  #   # maxError - Maximum error distance (meters) - larger changes ignored
+  #   maxError: ""
 
   # -------------------------------------------------------------------------
   # Location Hemisphere Override / جایگزینی نیمکره (برای رفع باگ دستگاه)
   # -------------------------------------------------------------------------
-  location:
-    # latitudeHemisphere - جایگزینی علامت عرض جغرافیایی (N یا S)
-    # latitudeHemisphere - Override latitude hemisphere (N or S)
-    latitudeHemisphere: ""
-    # longitudeHemisphere - جایگزینی علامت طول جغرافیایی (E یا W)
-    # longitudeHemisphere - Override longitude hemisphere (E or W)
-    longitudeHemisphere: ""
+  # location:
+  #   # latitudeHemisphere - جایگزینی علامت عرض جغرافیایی (N یا S)
+  #   # latitudeHemisphere - Override latitude hemisphere (N or S)
+  #   latitudeHemisphere: ""
+  #   # longitudeHemisphere - جایگزینی علامت طول جغرافیایی (E یا W)
+  #   # longitudeHemisphere - Override longitude hemisphere (E or W)
+  #   longitudeHemisphere: ""
 
   # -------------------------------------------------------------------------
   # Time Override / جایگزینی زمان دستگاه
@@ -2008,7 +1991,7 @@ carku:
   time:
     # override - جایگزینی زمان دستگاه (deviceTime یا serverTime)
     # override - Override device time (deviceTime or serverTime)
-    override: ""
+    override: "serverTime"
     # protocols - لیست پروتکل‌هایی که جایگزینی زمان برای آنها اعمال شود (خالی = همه)
     # protocols - List of protocols to apply time override (empty = all)
     protocols: ""
@@ -2035,10 +2018,10 @@ carku:
   # -------------------------------------------------------------------------
   # Device Manager / تنظیمات مدیریت دستگاه
   # -------------------------------------------------------------------------
-  deviceManager:
-    # lookupGroupsAttribute - ویژگی مورد استفاده برای جستجوی گروه‌های دستگاه (در پروتکل‌ها)
-    # lookupGroupsAttribute - Attribute for device group lookup in protocols
-    lookupGroupsAttribute: ""
+  # deviceManager:
+  #   # lookupGroupsAttribute - ویژگی مورد استفاده برای جستجوی گروه‌های دستگاه (در پروتکل‌ها)
+  #   # lookupGroupsAttribute - Attribute for device group lookup in protocols
+  #   lookupGroupsAttribute: ""
 
   # -------------------------------------------------------------------------
   # Wialon Protocol Settings / تنظیمات پروتکل Wialon (تبادل داده با Wialon)
@@ -2051,103 +2034,103 @@ carku:
   # -------------------------------------------------------------------------
   # LDAP Authentication / تنظیمات احراز هویت LDAP (Active Directory, OpenLDAP)
   # -------------------------------------------------------------------------
-  ldap:
-    # url - آدرس سرور LDAP (مثل ldap://localhost:389 یا ldaps://...)
-    # url - LDAP server URL (e.g., ldap://localhost:389 or ldaps://...)
-    url: ""
-    # user - نام کاربری برای اتصال (bind DN) - معمولاً یک کاربر فقط خواندنی
-    # user - Bind username (DN) - usually a read-only user
-    user: ""
-    # password - رمز عبور
-    # password - Bind password
-    password: ""
-    # force - اجباری کردن احراز هویت LDAP (غیرفعال کردن لاگین داخلی)
-    # force - Force LDAP authentication (disable internal login)
-    force: false
-    # base - جستجوی پایه برای یافتن کاربران (مثلاً ou=users,dc=example,dc=com)
-    # base - Search base for users (e.g., ou=users,dc=example,dc=com)
-    base: ""
-    # idAttribute - ویژگی LDAP که به عنوان شناسه کاربر استفاده می‌شود (پیش‌فرض uid)
-    # idAttribute - LDAP attribute used as user ID (default uid)
-    idAttribute: "uid"
-    # nameAttribute - ویژگی LDAP برای نام نمایشی (پیش‌فرض cn)
-    # nameAttribute - LDAP attribute for display name (default cn)
-    nameAttribute: "cn"
-    # mailAttribute - ویژگی LDAP برای ایمیل (پیش‌فرض mail)
-    # mailAttribute - LDAP attribute for email (default mail)
-    mailAttribute: "mail"
-    # searchFilter - فیلتر جستجوی سفارشی (پیش‌فرض "({idAttribute}=:login)")
-    # searchFilter - Custom search filter (default "({idAttribute}=:login)")
-    searchFilter: ""
-    # adminFilter - فیلتر تشخیص کاربران ادمین (مثلاً "(memberOf=cn=admins,ou=groups,...)")
-    # adminFilter - Filter to identify admin users (e.g., "(memberOf=cn=admins,ou=groups,...)")
-    adminFilter: ""
-    # adminGroup - گروه ادمین (در صورت عدم وجود adminFilter) - نام گروه یا DN
-    # adminGroup - Admin group name/DN (if adminFilter not set)
-    adminGroup: ""
+  # ldap:
+  #   # url - آدرس سرور LDAP (مثل ldap://localhost:389 یا ldaps://...)
+  #   # url - LDAP server URL (e.g., ldap://localhost:389 or ldaps://...)
+  #   url: ""
+  #   # user - نام کاربری برای اتصال (bind DN) - معمولاً یک کاربر فقط خواندنی
+  #   # user - Bind username (DN) - usually a read-only user
+  #   user: ""
+  #   # password - رمز عبور
+  #   # password - Bind password
+  #   password: ""
+  #   # force - اجباری کردن احراز هویت LDAP (غیرفعال کردن لاگین داخلی)
+  #   # force - Force LDAP authentication (disable internal login)
+  #   force: false
+  #   # base - جستجوی پایه برای یافتن کاربران (مثلاً ou=users,dc=example,dc=com)
+  #   # base - Search base for users (e.g., ou=users,dc=example,dc=com)
+  #   base: ""
+  #   # idAttribute - ویژگی LDAP که به عنوان شناسه کاربر استفاده می‌شود (پیش‌فرض uid)
+  #   # idAttribute - LDAP attribute used as user ID (default uid)
+  #   idAttribute: "uid"
+  #   # nameAttribute - ویژگی LDAP برای نام نمایشی (پیش‌فرض cn)
+  #   # nameAttribute - LDAP attribute for display name (default cn)
+  #   nameAttribute: "cn"
+  #   # mailAttribute - ویژگی LDAP برای ایمیل (پیش‌فرض mail)
+  #   # mailAttribute - LDAP attribute for email (default mail)
+  #   mailAttribute: "mail"
+  #   # searchFilter - فیلتر جستجوی سفارشی (پیش‌فرض "({idAttribute}=:login)")
+  #   # searchFilter - Custom search filter (default "({idAttribute}=:login)")
+  #   searchFilter: ""
+  #   # adminFilter - فیلتر تشخیص کاربران ادمین (مثلاً "(memberOf=cn=admins,ou=groups,...)")
+  #   # adminFilter - Filter to identify admin users (e.g., "(memberOf=cn=admins,ou=groups,...)")
+  #   adminFilter: ""
+  #   # adminGroup - گروه ادمین (در صورت عدم وجود adminFilter) - نام گروه یا DN
+  #   # adminGroup - Admin group name/DN (if adminFilter not set)
+  #   adminGroup: ""
 
   # -------------------------------------------------------------------------
   # OpenID Connect (OAuth2 / SSO) / تنظیمات ورود یکپارچه با OpenID Connect
   # -------------------------------------------------------------------------
-  openid:
-    # clients - لیست کلاینت‌های داخلی (فرمت "clientId:clientSecret:redirectUri" , چندین URI با | جدا می‌شوند)
-    # clients - List of built-in clients (format "clientId:clientSecret:redirectUri", multiple URIs with |)
-    clients: ""
-    # force - اجباری کردن احراز هویت OpenID (عدم نمایش صفحه لاگین داخلی)
-    # force - Force OpenID authentication (skip internal login page)
-    force: false
-    # allowRegistration - اجازه ثبت خودکار کاربران جدید از طریق OpenID حتی اگر ثبت‌نام سرور غیرفعال باشد
-    # allowRegistration - Allow auto-creation of new OpenID users even if server registration disabled
-    allowRegistration: false
-    # clientId - شناسه کلاینت (برای پیکربندی ساده تک کلاینت)
-    # clientId - Client ID (for simple single-client setup)
-    clientId: ""
-    # clientSecret - راز کلاینت
-    # clientSecret - Client secret
-    clientSecret: ""
-    # issuerUrl - آدرس issuer (برای خودپیکربندی discovery)
-    # issuerUrl - Issuer URL (for auto-configuration via well-known)
-    issuerUrl: ""
-    # authUrl - آدرس Authorization Endpoint (در صورت عدم استفاده از issuerUrl)
-    # authUrl - Authorization endpoint URL (if not using issuerUrl)
-    authUrl: ""
-    # tokenUrl - آدرس Token Endpoint
-    # tokenUrl - Token endpoint URL
-    tokenUrl: ""
-    # userInfoUrl - آدرس UserInfo Endpoint
-    # userInfoUrl - UserInfo endpoint URL
-    userInfoUrl: ""
-    # groupsClaimName - نام ادعای (claim) حاوی گروه‌ها (پیش‌فرض groups)
-    # groupsClaimName - Claim name for groups (default "groups")
-    groupsClaimName: "groups"
-    # allowGroup - گروه مجاز برای دسترسی (در صورت وجود، فقط کاربران این گروه می‌توانند وارد شوند)
-    # allowGroup - Group allowed to access (if set, only members of this group can log in)
-    allowGroup: ""
-    # adminGroup - گروه ادمین (کاربران عضو این گروه ادمین می‌شوند)
-    # adminGroup - Admin group (members become administrators)
-    adminGroup: ""
+  # openid:
+  #   # clients - لیست کلاینت‌های داخلی (فرمت "clientId:clientSecret:redirectUri" , چندین URI با | جدا می‌شوند)
+  #   # clients - List of built-in clients (format "clientId:clientSecret:redirectUri", multiple URIs with |)
+  #   clients: ""
+  #   # force - اجباری کردن احراز هویت OpenID (عدم نمایش صفحه لاگین داخلی)
+  #   # force - Force OpenID authentication (skip internal login page)
+  #   force: false
+  #   # allowRegistration - اجازه ثبت خودکار کاربران جدید از طریق OpenID حتی اگر ثبت‌نام سرور غیرفعال باشد
+  #   # allowRegistration - Allow auto-creation of new OpenID users even if server registration disabled
+  #   allowRegistration: false
+  #   # clientId - شناسه کلاینت (برای پیکربندی ساده تک کلاینت)
+  #   # clientId - Client ID (for simple single-client setup)
+  #   clientId: ""
+  #   # clientSecret - راز کلاینت
+  #   # clientSecret - Client secret
+  #   clientSecret: ""
+  #   # issuerUrl - آدرس issuer (برای خودپیکربندی discovery)
+  #   # issuerUrl - Issuer URL (for auto-configuration via well-known)
+  #   issuerUrl: ""
+  #   # authUrl - آدرس Authorization Endpoint (در صورت عدم استفاده از issuerUrl)
+  #   # authUrl - Authorization endpoint URL (if not using issuerUrl)
+  #   authUrl: ""
+  #   # tokenUrl - آدرس Token Endpoint
+  #   # tokenUrl - Token endpoint URL
+  #   tokenUrl: ""
+  #   # userInfoUrl - آدرس UserInfo Endpoint
+  #   # userInfoUrl - UserInfo endpoint URL
+  #   userInfoUrl: ""
+  #   # groupsClaimName - نام ادعای (claim) حاوی گروه‌ها (پیش‌فرض groups)
+  #   # groupsClaimName - Claim name for groups (default "groups")
+  #   groupsClaimName: "groups"
+  #   # allowGroup - گروه مجاز برای دسترسی (در صورت وجود، فقط کاربران این گروه می‌توانند وارد شوند)
+  #   # allowGroup - Group allowed to access (if set, only members of this group can log in)
+  #   allowGroup: ""
+  #   # adminGroup - گروه ادمین (کاربران عضو این گروه ادمین می‌شوند)
+  #   # adminGroup - Admin group (members become administrators)
+  #   adminGroup: ""
 
   # -------------------------------------------------------------------------
   # Broadcast (Clustering) / تنظیمات خوشه‌بندی (برای چندین سرور)
   # -------------------------------------------------------------------------
   # در صورت فعال بودن redis-ha، این تنظیمات نادیده گرفته می‌شوند.
   # If redis-ha is enabled, these settings are overridden.
-  broadcast:
-    # type - نوع broadcast (multicast, redis) - خالی = غیرفعال
-    # type - Broadcast type (multicast, redis) - empty = disabled
-    type: ""
-    # interface - رابط شبکه برای multicast (آی‌پی یا نام رابط مثل eth0)
-    # interface - Network interface for multicast (IP or interface name)
-    interface: ""
-    # address - آدرس multicast (مثل 230.0.0.1) یا Redis URL (مثل redis://...)
-    # address - Multicast address (e.g., 230.0.0.1) or Redis URL
-    address: ""
-    # port - پورت multicast (مثل 4446)
-    # port - Multicast port (e.g., 4446)
-    port: ""
-    # secondary - علامت سرور ثانویه (برخی وظایف مثل گزارشات زمانبندی شده فقط روی اصلی اجرا شوند)
-    # secondary - Mark as secondary server (some tasks like scheduled reports run only on main)
-    secondary: false
+  # broadcast:
+  #   # type - نوع broadcast (multicast, redis) - خالی = غیرفعال
+  #   # type - Broadcast type (multicast, redis) - empty = disabled
+  #   type: ""
+  #   # interface - رابط شبکه برای multicast (آی‌پی یا نام رابط مثل eth0)
+  #   # interface - Network interface for multicast (IP or interface name)
+  #   interface: ""
+  #   # address - آدرس multicast (مثل 230.0.0.1) یا Redis URL (مثل redis://...)
+  #   # address - Multicast address (e.g., 230.0.0.1) or Redis URL
+  #   address: ""
+  #   # port - پورت multicast (مثل 4446)
+  #   # port - Multicast port (e.g., 4446)
+  #   port: ""
+  #   # secondary - علامت سرور ثانویه (برخی وظایف مثل گزارشات زمانبندی شده فقط روی اصلی اجرا شوند)
+  #   # secondary - Mark as secondary server (some tasks like scheduled reports run only on main)
+  #   secondary: false
 
   # -------------------------------------------------------------------------
   # TOTP (Two-Factor Authentication) / تنظیمات احراز هویت دو مرحله‌ای
@@ -2155,7 +2138,7 @@ carku:
   totp:
     # enable - فعال کردن TOTP در سرور (کاربران می‌توانند تنظیم کنند)
     # enable - Enable TOTP authentication on server (users can set it up)
-    enable: false
+    enable: true
     # force - اجباری کردن TOTP برای همه کاربران جدید (و نیاز به تنظیم برای کاربران قدیمی)
     # force - Force TOTP for new users (and require existing users to set up)
     force: false

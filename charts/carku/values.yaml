@@ -1214,54 +1214,6 @@ redis-ha:
     enabled: true
 
 # =============================================================================
-# Nominatim Geocoding Service (Optional) / سرویس جغرافیای معکوس Nominatim (اختیاری)
-# =============================================================================
-# این سرویس برای تبدیل مختصات به آدرس استفاده می‌شود. در صورت فعال بودن، geocoder.url به آن اشاره می‌کند.
-# This service is used for reverse geocoding. If enabled, geocoder.url will point to it.
-
-nominatim:
-  # enabled - فعال کردن سرویس Nominatim (پیش‌فرض: غیرفعال)
-  # enabled - Enable Nominatim service (default: false)
-  enabled: false
-  image:
-    repository: ghcr.io/i-panel/nominatim-k8s
-    tag: latest
-    pullPolicy: IfNotPresent
-  imagePullSecrets: []
-  config:
-    # pbfUrl - آدرس فایل داده OSM (فرمت PBF)
-    # pbfUrl - URL of OSM data file (PBF format)
-    pbfUrl: "http://download.geofabrik.de/asia/iran-latest.osm.pbf"
-    # dataLabel - برچسب داده (برای شناسایی)
-    # dataLabel - Data label for identification
-    dataLabel: "iran-260525"
-    # awsRegion - منطقه AWS برای ذخیره داده (در صورت استفاده از S3)
-    # awsRegion - AWS region for data storage (if using S3)
-    awsRegion: "ir-thr-at1"
-    # s3Bucket - نام باکت S3 برای داده‌ها
-    # s3Bucket - S3 bucket name for data
-    s3Bucket: "nominatim-data"
-  s3:
-    accessKeyId: ""
-    secretAccessKey: ""
-  canary:
-    enabled: false
-    replicas: 1
-  stable:
-    enabled: true
-    replicas: 3
-  resources: {}
-  ingress:
-    enabled: false
-    className: ""
-    annotations: {}
-    hosts:
-      - host: nominatim.example.com
-        paths:
-          - /
-    tls: []
-
-# =============================================================================
 # Main Carku Configuration (carku.xml) / تنظیمات اصلی کارکو (فایل carku.xml)
 # =============================================================================
 # این بخش معادل تنظیمات فایل XML برنامه است و به ConfigMap تبدیل می‌شود.
@@ -1386,7 +1338,7 @@ carku:
     type: "nominatim"
     # url - آدرس سرور (برای Nominatim یا Gisgraphy داخلی)
     # url - Server URL (for self-hosted Nominatim or Gisgraphy)
-    url: ""
+    url: "https://geocoder.carku.ir/reverse"
     # key - کلید API (برای سرویس‌های تجاری مانند Google, LocationIQ)
     # key - API key (for commercial providers like Google, LocationIQ)
     key: ""
