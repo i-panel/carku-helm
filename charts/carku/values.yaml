@@ -1,0 +1,1863 @@
+# =============================================================================
+# Carku Helm Chart - Complete Configuration with Bilingual Comments
+# نمودار هلم کارکو - تنظیمات کامل با توضیحات دو زبانه
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# General Settings / تنظیمات عمومی
+# -----------------------------------------------------------------------------
+
+# configOverride - Completely overrides the generated config.xml content (if needed)
+# configOverride - در صورت نیاز، کل محتوای فایل config.xml را جایگزین می‌کند
+configOverride: ""
+
+# replicaCount - Number of pod replicas. For HA mode, set >1 and configure broadcast.
+# replicaCount - تعداد replicas پاد. برای حالت High Availability بیشتر از 1 و broadcast پیکربندی شود.
+replicaCount: 1
+
+# deploymentStrategy - Deployment update strategy (Recreate for non-HA, RollingUpdate for HA)
+# deploymentStrategy - استراتژی به‌روزرسانی استقرار (Recreate برای غیر HA، RollingUpdate برای HA)
+deploymentStrategy:
+  type: Recreate   # Recreate / RollingUpdate
+
+# -----------------------------------------------------------------------------
+# Image Settings / تنظیمات ایمیج کانتینر
+# -----------------------------------------------------------------------------
+
+image:
+  # repository - Docker image repository (GitHub Container Registry)
+  # repository - مخزن ایمیج داکر (GitHub Container Registry)
+  repository: ghcr.io/i-panel/carku
+  # pullPolicy - Image pull policy: Always, IfNotPresent, Never
+  # pullPolicy - سیاست کشیدن ایمیج: Always, IfNotPresent, Never
+  pullPolicy: IfNotPresent
+  # flavor - نوع پایه سیستم عامل (alpine, debian, ubuntu)
+  # flavor - Base OS flavor (alpine, debian, ubuntu)
+  # flavor: "alpine"
+  # tag - برچسب نسخه (با appVersion چارت هماهنگ شود)
+  # tag - Image tag (should match chart appVersion)
+  # tag - برچسب نسخه (باید با appVersion چارت هماهنگ باشد)
+  tag: "6.14.4-debian"
+
+# imagePullSecrets - Secrets for private registry access
+# imagePullSecrets - رازهای دسترسی به مخزن خصوصی
+imagePullSecrets:
+  - name: ghcr-pull-secret
+
+# nameOverride - Override the name of the chart (first part of the name)
+# nameOverride - جایگزینی نام چارت (بخش اول نام)
+nameOverride: ""
+# fullnameOverride - Override the full resource name
+# fullnameOverride - جایگزینی نام کامل منبع
+fullnameOverride: ""
+
+
+# -----------------------------------------------------------------------------
+# Service Account / تنظیمات سرویس اکانت Kubernetes
+# -----------------------------------------------------------------------------
+
+serviceAccount:
+  # create - Whether to create a service account
+  # create - آیا سرویس اکانت ایجاد شود؟
+  create: true
+  # annotations - Additional annotations for the service account
+  # annotations - حاشیه‌نویس‌های اضافی برای سرویس اکانت
+  annotations: {}
+  # name - Service account name (auto-generated if empty and create=true)
+  # name - نام سرویس اکانت (در صورت خالی و create=true، خودکار ساخته می‌شود)
+  name: ""
+
+# -----------------------------------------------------------------------------
+# Pod Metadata / فراداده پاد
+# -----------------------------------------------------------------------------
+
+# podAnnotations - Additional annotations for the pod
+# podAnnotations - حاشیه‌نویس‌های اضافی برای پاد
+podAnnotations: {}
+# podLabels - Additional labels for the pod
+# podLabels - برچسب‌های اضافی برای پاد
+podLabels: {}
+
+# podSecurityContext - Pod-level security context (user/group settings)
+# podSecurityContext - زمینه امنیتی سطح پاد (تعیین کاربر/گروه)
+podSecurityContext: {}
+
+# securityContext - Container-level security context (capabilities and permissions)
+# securityContext - زمینه امنیتی سطح کانتینر (قابلیت‌ها و مجوزها)
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# initContainers - List of init containers to run before the main container
+# initContainers - لیست کانتینرهای اولیه که قبل از کانتینر اصلی اجرا می‌شوند
+initContainers: []
+
+# -----------------------------------------------------------------------------
+# Command and Arguments / دستور و آرگومان‌های اجرایی
+# -----------------------------------------------------------------------------
+
+# command - Main command (Java with memory settings)
+# command - دستور اصلی (جاوا با تنظیمات حافظه)
+command: ["/opt/carku/jre/bin/java", "-Xms512m", "-Xmx512m", "-Djava.net.preferIPv4Stack=true"]
+# args - Command arguments (JAR file and config path)
+# args - آرگومان‌های دستور (فایل JAR و مسیر کانفیگ)
+args: ["-jar", "tracker-server.jar", "conf/carku.xml"]
+
+# -----------------------------------------------------------------------------
+# Environment Variables / متغیرهای محیطی (برای بازنویسی تنظیمات)
+# -----------------------------------------------------------------------------
+# Note: To use environment variables, set CONFIG_USE_ENVIRONMENT_VARIABLES to true.
+# Conversion: Replace dots (.) with underscores (_) and convert to uppercase.
+# توجه: برای استفاده از متغیرهای محیطی، CONFIG_USE_ENVIRONMENT_VARIABLES باید true باشد.
+# تبدیل کلیدهای کانفیگ: نقطه (.) تبدیل به زیرخط (_) و همه حروف بزرگ می‌شوند.
+env: []
+
+# -----------------------------------------------------------------------------
+# Ingress / تنظیمات اینگرس (ورودی خارجی برای وب)
+# -----------------------------------------------------------------------------
+
+ingress:
+  # enabled - Enable ingress (typically with nginx ingress controller)
+  # enabled - فعال کردن اینگرس (معمولاً با nginx ingress controller)
+  enabled: true
+  # extraAnnotations - Additional annotations (e.g., for cert-manager)
+  # extraAnnotations - حاشیه‌نویس‌های اضافی (مثلاً برای cert-manager)
+  extraAnnotations: {}
+  # annotations - Standard annotations (for compatibility)
+  # annotations - حاشیه‌نویس‌های استاندارد (برای سازگاری)
+  annotations: {}
+  # hosts - List of hosts and paths
+  # hosts - لیست هاست‌ها و مسیرها
+  hosts:
+    - host: demo.carku.ir
+      paths:
+        - /
+  # tls - TLS settings (certificates)
+  # tls - تنظیمات TLS (گواهی‌نامه)
+  tls: []
+
+# -----------------------------------------------------------------------------
+# Internal Service (Web UI) / سرویس داخلی (رابط کاربری وب)
+# -----------------------------------------------------------------------------
+
+service:
+  # type - Service type (ClusterIP for internal access)
+  # type - نوع سرویس (ClusterIP برای دسترسی داخلی)
+  type: ClusterIP
+  # port - Internal port (maps to container port 8082)
+  # port - پورت داخلی که سرویس به آن گوش می‌دهد (به پورت 8082 کانتینر map می‌شود)
+  port: 80
+
+# -----------------------------------------------------------------------------
+# External Service (Device Protocols) / سرویس خارجی (پروتکل‌های دستگاه)
+# -----------------------------------------------------------------------------
+
+externalService:
+  # enabled - Enable external service (typically LoadBalancer)
+  # enabled - فعال کردن سرویس خارجی (معمولاً LoadBalancer)
+  enabled: true
+  # type - Service type (LoadBalancer, NodePort, ClusterIP)
+  # type - نوع سرویس (LoadBalancer, NodePort, ClusterIP)
+  type: LoadBalancer
+  # annotations - Additional annotations (e.g., for MetalLB)
+  # annotations - حاشیه‌نویس‌های اضافی (مثلاً برای MetalLB)
+  annotations: {}
+  # protocolPorts - List of protocol ports for device connections
+  # protocolPorts - لیست پورت‌های پروتکل برای اتصالات دستگاه
+  protocolPorts:
+    - name: gps103
+      port: 5001
+      targetPort: gps103
+    - name: tk103
+      port: 5002
+      targetPort: tk103
+    - name: gl100
+      port: 5003
+      targetPort: gl100
+    - name: gl200
+      port: 5004
+      targetPort: gl200
+    - name: t55
+      port: 5005
+      targetPort: t55
+    - name: xexun
+      port: 5006
+      targetPort: xexun
+    - name: totem
+      port: 5007
+      targetPort: totem
+    - name: enfora
+      port: 5008
+      targetPort: enfora
+    - name: meiligao
+      port: 5009
+      targetPort: meiligao
+    - name: trv
+      port: 5010
+      targetPort: trv
+    - name: suntech
+      port: 5011
+      targetPort: suntech
+    - name: progress
+      port: 5012
+      targetPort: progress
+    - name: h02
+      port: 5013
+      targetPort: h02
+    - name: jt600
+      port: 5014
+      targetPort: jt600
+    - name: jt808
+      port: 5015
+      targetPort: jt808
+    - name: v680
+      port: 5016
+      targetPort: v680
+    - name: pt502
+      port: 5017
+      targetPort: pt502
+    - name: tr20
+      port: 5018
+      targetPort: tr20
+    - name: navis
+      port: 5019
+      targetPort: navis
+    - name: meitrack
+      port: 5020
+      targetPort: meitrack
+    - name: skypatrol
+      port: 5021
+      targetPort: skypatrol
+    - name: gt02
+      port: 5022
+      targetPort: gt02
+    - name: gt06
+      port: 5023
+      targetPort: gt06
+    - name: megastek
+      port: 5024
+      targetPort: megastek
+    - name: navigil
+      port: 5025
+      targetPort: navigil
+    - name: gpsgate
+      port: 5026
+      targetPort: gpsgate
+    - name: teltonika
+      port: 5027
+      targetPort: teltonika
+    - name: mta6
+      port: 5028
+      targetPort: mta6
+    - name: tzone
+      port: 5029
+      targetPort: tzone
+    - name: tlt2h
+      port: 5030
+      targetPort: tlt2h
+    - name: taip
+      port: 5031
+      targetPort: taip
+    - name: wondex
+      port: 5032
+      targetPort: wondex
+    - name: cellocator
+      port: 5033
+      targetPort: cellocator
+    - name: galileo
+      port: 5034
+      targetPort: galileo
+    - name: ywt
+      port: 5035
+      targetPort: ywt
+    - name: tk102
+      port: 5036
+      targetPort: tk102
+    - name: intellitrac
+      port: 5037
+      targetPort: intellitrac
+    - name: gpsmta
+      port: 5038
+      targetPort: gpsmta
+    - name: wialon
+      port: 5039
+      targetPort: wialon
+    - name: carscop
+      port: 5040
+      targetPort: carscop
+    - name: apel
+      port: 5041
+      targetPort: apel
+    - name: manpower
+      port: 5042
+      targetPort: manpower
+    - name: globalsat
+      port: 5043
+      targetPort: globalsat
+    - name: atrack
+      port: 5044
+      targetPort: atrack
+    - name: pt3000
+      port: 5045
+      targetPort: pt3000
+    - name: ruptela
+      port: 5046
+      targetPort: ruptela
+    - name: topflytech
+      port: 5047
+      targetPort: topflytech
+    - name: laipac
+      port: 5048
+      targetPort: laipac
+    - name: aplicom
+      port: 5049
+      targetPort: aplicom
+    - name: gotop
+      port: 5050
+      targetPort: gotop
+    - name: sanav
+      port: 5051
+      targetPort: sanav
+    - name: gator
+      port: 5052
+      targetPort: gator
+    - name: noran
+      port: 5053
+      targetPort: noran
+    - name: m2m
+      port: 5054
+      targetPort: m2m
+    - name: osmand
+      port: 5055
+      targetPort: osmand
+    - name: easytrack
+      port: 5056
+      targetPort: easytrack
+    - name: gpsmarker
+      port: 5057
+      targetPort: gpsmarker
+    - name: khd
+      port: 5058
+      targetPort: khd
+    - name: piligrim
+      port: 5059
+      targetPort: piligrim
+    - name: stl060
+      port: 5060
+      targetPort: stl060
+    - name: cartrack
+      port: 5061
+      targetPort: cartrack
+    - name: minifinder
+      port: 5062
+      targetPort: minifinder
+    - name: haicom
+      port: 5063
+      targetPort: haicom
+    - name: eelink
+      port: 5064
+      targetPort: eelink
+    - name: box
+      port: 5065
+      targetPort: box
+    - name: freedom
+      port: 5066
+      targetPort: freedom
+    - name: telic
+      port: 5067
+      targetPort: telic
+    - name: trackbox
+      port: 5068
+      targetPort: trackbox
+    - name: visiontek
+      port: 5069
+      targetPort: visiontek
+    - name: orion
+      port: 5070
+      targetPort: orion
+    - name: riti
+      port: 5071
+      targetPort: riti
+    - name: ulbotech
+      port: 5072
+      targetPort: ulbotech
+    - name: tramigo
+      port: 5073
+      targetPort: tramigo
+    - name: tr900
+      port: 5074
+      targetPort: tr900
+    - name: ardi01
+      port: 5075
+      targetPort: ardi01
+    - name: xt013
+      port: 5076
+      targetPort: xt013
+    - name: autofon
+      port: 5077
+      targetPort: autofon
+    - name: gosafe
+      port: 5078
+      targetPort: gosafe
+    - name: tt8850
+      port: 5079
+      targetPort: tt8850
+    - name: bce
+      port: 5080
+      targetPort: bce
+    - name: xirgo
+      port: 5081
+      targetPort: xirgo
+    - name: calamp
+      port: 5082
+      targetPort: calamp
+    - name: mtx
+      port: 5083
+      targetPort: mtx
+    - name: tytan
+      port: 5084
+      targetPort: tytan
+    - name: avl301
+      port: 5085
+      targetPort: avl301
+    - name: castel
+      port: 5086
+      targetPort: castel
+    - name: mxt
+      port: 5087
+      targetPort: mxt
+    - name: cityeasy
+      port: 5088
+      targetPort: cityeasy
+    - name: aquila
+      port: 5089
+      targetPort: aquila
+    - name: flextrack
+      port: 5090
+      targetPort: flextrack
+    - name: blackkite
+      port: 5091
+      targetPort: blackkite
+    - name: adm
+      port: 5092
+      targetPort: adm
+    - name: watch
+      port: 5093
+      targetPort: watch
+    - name: t800x
+      port: 5094
+      targetPort: t800x
+    - name: upro
+      port: 5095
+      targetPort: upro
+    - name: auro
+      port: 5096
+      targetPort: auro
+    - name: disha
+      port: 5097
+      targetPort: disha
+    - name: thinkrace
+      port: 5098
+      targetPort: thinkrace
+    - name: pathaway
+      port: 5099
+      targetPort: pathaway
+    - name: arnavi
+      port: 5100
+      targetPort: arnavi
+    - name: nvs
+      port: 5101
+      targetPort: nvs
+    - name: kenji
+      port: 5102
+      targetPort: kenji
+    - name: astra
+      port: 5103
+      targetPort: astra
+    - name: homtecs
+      port: 5104
+      targetPort: homtecs
+    - name: fox
+      port: 5105
+      targetPort: fox
+    - name: gnx
+      port: 5106
+      targetPort: gnx
+    - name: arknav
+      port: 5107
+      targetPort: arknav
+    - name: supermate
+      port: 5108
+      targetPort: supermate
+    - name: appello
+      port: 5109
+      targetPort: appello
+    - name: idpl
+      port: 5110
+      targetPort: idpl
+    - name: huasheng
+      port: 5111
+      targetPort: huasheng
+    - name: l100
+      port: 5112
+      targetPort: l100
+    - name: granit
+      port: 5113
+      targetPort: granit
+    - name: carcell
+      port: 5114
+      targetPort: carcell
+    - name: obddongle
+      port: 5115
+      targetPort: obddongle
+    - name: hunterpro
+      port: 5116
+      targetPort: hunterpro
+    - name: raveon
+      port: 5117
+      targetPort: raveon
+    - name: cradlepoint
+      port: 5118
+      targetPort: cradlepoint
+    - name: arknavx8
+      port: 5119
+      targetPort: arknavx8
+    - name: autograde
+      port: 5120
+      targetPort: autograde
+    - name: oigo
+      port: 5121
+      targetPort: oigo
+    - name: jpkorjar
+      port: 5122
+      targetPort: jpkorjar
+    - name: cguard
+      port: 5123
+      targetPort: cguard
+    - name: fifotrack
+      port: 5124
+      targetPort: fifotrack
+    - name: smokey
+      port: 5125
+      targetPort: smokey
+    - name: extremtrac
+      port: 5126
+      targetPort: extremtrac
+    - name: trakmate
+      port: 5127
+      targetPort: trakmate
+    - name: at2000
+      port: 5128
+      targetPort: at2000
+    - name: maestro
+      port: 5129
+      targetPort: maestro
+    - name: ais
+      port: 5130
+      targetPort: ais
+    - name: gt30
+      port: 5131
+      targetPort: gt30
+    - name: tmg
+      port: 5132
+      targetPort: tmg
+    - name: pretrace
+      port: 5133
+      targetPort: pretrace
+    - name: pricol
+      port: 5134
+      targetPort: pricol
+    - name: siwi
+      port: 5135
+      targetPort: siwi
+    - name: starlink
+      port: 5136
+      targetPort: starlink
+    - name: dmt
+      port: 5137
+      targetPort: dmt
+    - name: xt2400
+      port: 5138
+      targetPort: xt2400
+    - name: dmthttp
+      port: 5139
+      targetPort: dmthttp
+    - name: alematics
+      port: 5140
+      targetPort: alematics
+    - name: gps056
+      port: 5141
+      targetPort: gps056
+    - name: flexcomm
+      port: 5142
+      targetPort: flexcomm
+    - name: vt200
+      port: 5143
+      targetPort: vt200
+    - name: owntracks
+      port: 5144
+      targetPort: owntracks
+    - name: vtfms
+      port: 5145
+      targetPort: vtfms
+    - name: tlv
+      port: 5146
+      targetPort: tlv
+    - name: esky
+      port: 5147
+      targetPort: esky
+    - name: genx
+      port: 5148
+      targetPort: genx
+    - name: flespi
+      port: 5149
+      targetPort: flespi
+    - name: dway
+      port: 5150
+      targetPort: dway
+    - name: recoda
+      port: 5151
+      targetPort: recoda
+    - name: oko
+      port: 5152
+      targetPort: oko
+    - name: ivt401
+      port: 5153
+      targetPort: ivt401
+    - name: sigfox
+      port: 5154
+      targetPort: sigfox
+    - name: t57
+      port: 5155
+      targetPort: t57
+    - name: spot
+      port: 5156
+      targetPort: spot
+    - name: m2c
+      port: 5157
+      targetPort: m2c
+    - name: austinnb
+      port: 5158
+      targetPort: austinnb
+    - name: opengts
+      port: 5159
+      targetPort: opengts
+    - name: cautela
+      port: 5160
+      targetPort: cautela
+    - name: continental
+      port: 5161
+      targetPort: continental
+    - name: egts
+      port: 5162
+      targetPort: egts
+    - name: robotrack
+      port: 5163
+      targetPort: robotrack
+    - name: pt60
+      port: 5164
+      targetPort: pt60
+    - name: telemax
+      port: 5165
+      targetPort: telemax
+    - name: sabertek
+      port: 5166
+      targetPort: sabertek
+    - name: retranslator
+      port: 5167
+      targetPort: retranslator
+    - name: svias
+      port: 5168
+      targetPort: svias
+    - name: eseal
+      port: 5169
+      targetPort: eseal
+    - name: freematics
+      port: 5170
+      targetPort: freematics
+    - name: avema
+      port: 5171
+      targetPort: avema
+    - name: autotrack
+      port: 5172
+      targetPort: autotrack
+    - name: tek
+      port: 5173
+      targetPort: tek
+    - name: wristband
+      port: 5174
+      targetPort: wristband
+    - name: milesmate
+      port: 5176
+      targetPort: milesmate
+    - name: anytrek
+      port: 5177
+      targetPort: anytrek
+    - name: smartsole
+      port: 5178
+      targetPort: smartsole
+    - name: its
+      port: 5179
+      targetPort: its
+    - name: xrb28
+      port: 5180
+      targetPort: xrb28
+    - name: c2stek
+      port: 5181
+      targetPort: c2stek
+    - name: nyitech
+      port: 5182
+      targetPort: nyitech
+    - name: neos
+      port: 5183
+      targetPort: neos
+    - name: satsol
+      port: 5184
+      targetPort: satsol
+    - name: globalstar
+      port: 5185
+      targetPort: globalstar
+    - name: sanul
+      port: 5186
+      targetPort: sanul
+    - name: minifinder2
+      port: 5187
+      targetPort: minifinder2
+    - name: radar
+      port: 5188
+      targetPort: radar
+    - name: techtlt
+      port: 5189
+      targetPort: techtlt
+    - name: starcom
+      port: 5190
+      targetPort: starcom
+    - name: mictrack
+      port: 5191
+      targetPort: mictrack
+    - name: plugin
+      port: 5192
+      targetPort: plugin
+    - name: leafspy
+      port: 5193
+      targetPort: leafspy
+    - name: naviset
+      port: 5194
+      targetPort: naviset
+    - name: racedynamics
+      port: 5195
+      targetPort: racedynamics
+    - name: rst
+      port: 5196
+      targetPort: rst
+    - name: pt215
+      port: 5197
+      targetPort: pt215
+    - name: pacifictrack
+      port: 5198
+      targetPort: pacifictrack
+    - name: topin
+      port: 5199
+      targetPort: topin
+    - name: outsafe
+      port: 5200
+      targetPort: outsafe
+    - name: solarpowered
+      port: 5201
+      targetPort: solarpowered
+    - name: motor
+      port: 5202
+      targetPort: motor
+    - name: omnicomm
+      port: 5203
+      targetPort: omnicomm
+    - name: s168
+      port: 5204
+      targetPort: s168
+    - name: vnet
+      port: 5205
+      targetPort: vnet
+    - name: blue
+      port: 5206
+      targetPort: blue
+    - name: pst
+      port: 5207
+      targetPort: pst
+    - name: dingtek
+      port: 5208
+      targetPort: dingtek
+    - name: wli
+      port: 5209
+      targetPort: wli
+    - name: niot
+      port: 5210
+      targetPort: niot
+    - name: portman
+      port: 5211
+      targetPort: portman
+    - name: moovbox
+      port: 5212
+      targetPort: moovbox
+    - name: futureway
+      port: 5213
+      targetPort: futureway
+    - name: polte
+      port: 5214
+      targetPort: polte
+    - name: net
+      port: 5215
+      targetPort: net
+    - name: mobilogix
+      port: 5216
+      targetPort: mobilogix
+    - name: swiftech
+      port: 5217
+      targetPort: swiftech
+    - name: iotm
+      port: 5218
+      targetPort: iotm
+    - name: dolphin
+      port: 5219
+      targetPort: dolphin
+    - name: ennfu
+      port: 5220
+      targetPort: ennfu
+    - name: maxpb
+      port: 5221
+      targetPort: maxpb
+    - name: startek
+      port: 5222
+      targetPort: startek
+    - name: gs100
+      port: 5223
+      targetPort: gs100
+    - name: mavlink2
+      port: 5224
+      targetPort: mavlink2
+    - name: uux
+      port: 5225
+      targetPort: uux
+    - name: r12w
+      port: 5226
+      targetPort: r12w
+    - name: flexiblereport
+      port: 5227
+      targetPort: flexiblereport
+    - name: thinkpower
+      port: 5228
+      targetPort: thinkpower
+    - name: stb
+      port: 5229
+      targetPort: stb
+    - name: b2316
+      port: 5230
+      targetPort: b2316
+    - name: hoopo
+      port: 5231
+      targetPort: hoopo
+    - name: dualcam
+      port: 5232
+      targetPort: dualcam
+    - name: xexun2
+      port: 5233
+      targetPort: xexun2
+    - name: techtocruz
+      port: 5234
+      targetPort: techtocruz
+    - name: flexapi
+      port: 5235
+      targetPort: flexapi
+    - name: dsf22
+      port: 5236
+      targetPort: dsf22
+    - name: jido
+      port: 5237
+      targetPort: jido
+    - name: armoli
+      port: 5238
+      targetPort: armoli
+    - name: teratrack
+      port: 5239
+      targetPort: teratrack
+    - name: envotech
+      port: 5240
+      targetPort: envotech
+    - name: bstpl
+      port: 5241
+      targetPort: bstpl
+    - name: thuraya
+      port: 5242
+      targetPort: thuraya
+    - name: ndtpv6
+      port: 5243
+      targetPort: ndtpv6
+    - name: g1rus
+      port: 5244
+      targetPort: g1rus
+    - name: rftrack
+      port: 5245
+      targetPort: rftrack
+    - name: vlt
+      port: 5246
+      targetPort: vlt
+    - name: transync
+      port: 5247
+      targetPort: transync
+    - name: t622iridium
+      port: 5248
+      targetPort: t622iridium
+    - name: pui
+      port: 5249
+      targetPort: pui
+    - name: nto
+      port: 5250
+      targetPort: nto
+    - name: ramac
+      port: 5251
+      targetPort: ramac
+    - name: positrex
+      port: 5252
+      targetPort: positrex
+    - name: dragino
+      port: 5253
+      targetPort: dragino
+    - name: fleetguide
+      port: 5254
+      targetPort: fleetguide
+    - name: valtrack
+      port: 5255
+      targetPort: valtrack
+    - name: snapper
+      port: 5256
+      targetPort: snapper
+    - name: gl601
+      port: 5257
+      targetPort: gl601
+    - name: hyn600
+      port: 5258
+      targetPort: hyn600
+    - name: jmak
+      port: 5259
+      targetPort: jmak
+    - name: bws
+      port: 5260
+      targetPort: bws
+    - name: ttnhttp
+      port: 5261
+      targetPort: ttnhttp
+    - name: smartcar
+      port: 5262
+      targetPort: smartcar
+    - name: jt1078
+      port: 5263
+      targetPort: jt1078
+    - name: xexun3
+      port: 5264
+      targetPort: xexun3
+    - name: radshid
+      port: 5265
+      targetPort: radshid
+    - name: r16h
+      port: 5266
+      targetPort: r16h
+    - name: jimiphoto
+      port: 5267
+      targetPort: jimiphoto
+
+# -----------------------------------------------------------------------------
+# Resources and Autoscaling / منابع و مقیاس‌گذاری خودکار
+# -----------------------------------------------------------------------------
+
+# resources - CPU/Memory resource requests and limits
+# resources - محدودیت‌ها و درخواست‌های منابع CPU/حافظه
+resources:
+  limits: {}
+  requests:
+    cpu: 300m
+    memory: 600Mi
+
+# autoscaling - Horizontal Pod Autoscaler configuration
+# autoscaling - مقیاس‌گذاری خودکار افقی (Horizontal Pod Autoscaler)
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# =============================================================================
+# Node Assignment / تخصیص به نودها
+# =============================================================================
+
+# nodeSelector - انتخاب نود بر اساس برچسب‌ها
+# nodeSelector - Node selection based on labels
+nodeSelector: {}
+# tolerations - تحمل‌ها برای نودهای با taint
+# tolerations - Tolerations for tainted nodes
+tolerations: []
+# affinity - قوانین وابستگی (ضد وابستگی) برای استقرار
+# affinity - Affinity/anti-affinity rules for scheduling
+affinity: {}
+
+# =============================================================================
+# Health Probes (Liveness & Readiness) / بررسی‌های سلامت
+# -----------------------------------------------------------------------------
+
+# livenessProbe - Checks if the container is alive (restarts on failure)
+# livenessProbe - بررسی زنده بودن (در صورت شکست، کانتینر ری‌استارت می‌شود)
+livenessProbe:
+  httpGet:
+    # path - مسیر API (پاسخ 2xx یعنی سالم)
+    # path - API endpoint (2xx response means healthy)
+    path: /api/server
+    # port - نام پورت تعریف شده در سرویس (http)
+    # port - Port name defined in the service (http)
+    port: http
+  # initialDelaySeconds - تاخیر قبل از اولین بررسی (ثانیه)
+  # initialDelaySeconds - Delay before first probe (seconds)
+  initialDelaySeconds: 60
+  # periodSeconds - فاصله بین بررسی‌ها (ثانیه)
+  # periodSeconds - Interval between probes (seconds)
+  periodSeconds: 60
+  # failureThreshold - تعداد دفعات شکست مجاز قبل از نشانه‌گذاری به عنوان ناسالم
+  # failureThreshold - Number of failures allowed before marking as unhealthy
+  failureThreshold: 2
+  # timeoutSeconds - مهلت پاسخگویی برای هر درخواست (ثانیه)
+  # timeoutSeconds - Timeout for each probe request (seconds)
+  timeoutSeconds: 1
+
+# readinessProbe - Checks if the pod is ready to receive traffic
+# readinessProbe - بررسی آمادگی برای پذیرش ترافیک (در صورت شکست، ترافیک به این پاد نمی‌رسد)
+readinessProbe:
+  httpGet:
+    # path - مسیر API با پارامتر force برای بررسی مستقیم دیتابیس
+    # path - API endpoint with force parameter for direct database check
+    path: /api/server?force=true
+    port: http
+  initialDelaySeconds: 60
+  periodSeconds: 60
+  failureThreshold: 1
+  timeoutSeconds: 1
+
+# -----------------------------------------------------------------------------
+# Database Configuration / تنظیمات دیتابیس
+# =============================================================================
+# شما می‌توانید یکی از گزینه‌های MySQL، PostgreSQL یا H2 را انتخاب کنید.
+# You can choose between MySQL, PostgreSQL, or H2 (Embedded).
+
+# MySQL (default, enabled)
+mysql:
+  enabled: true
+  image:
+    repository: bitnamilegacy/mysql
+  auth:
+    database: "carku"
+    username: "carku"
+    password: "carku"   # 🔐 Sensitive - use secret in production
+  primary:
+    persistence:
+      enabled: false
+  ssl:
+    enabled: false   # set to true in production
+  resources:
+      limits: {}
+      requests:
+        cpu: 300m
+        memory: 600Mi
+
+# PostgreSQL (optional, disabled by default)
+# 2. PostgreSQL & TimescaleDB (External Subchart)
+postgresql:
+  enabled: false
+  auth:
+    database: "carku"
+    username: "carku"
+    password: "carku"
+    postgresPassword: "carku-root-password"
+  ssl:
+    enabled: false
+  timescaledb:
+    enabled: false
+  primary:
+    resources:
+      limits: {}
+      requests:
+        cpu: 300m
+        memory: 600Mi
+    extendedConfiguration: |
+      shared_preload_libraries = 'timescaledb'
+      timescaledb.max_background_workers = 8
+      max_connections = 500
+      shared_buffers = 1GB
+      effective_cache_size = 3GB
+    persistence:
+      enabled: true
+      size: 20Gi
+
+# H2 (embedded, for testing only)
+h2:
+  enabled: false
+  path: "data/carku.db"
+  memory: false
+  persistence:
+    enabled: true
+    size: 10Gi
+
+# Redis HA cluster (for broadcast clustering)
+redis-ha:
+  enabled: false
+
+# -----------------------------------------------------------------------------
+# Main Carku Configuration (carku.xml) / تنظیمات اصلی کارکو
+# -----------------------------------------------------------------------------
+
+carku:
+  # -------------------------------------------------------------------------
+  # Server Settings / تنظیمات سرور
+  # -------------------------------------------------------------------------
+  server:
+    # bufferingThreshold - Threshold for buffering to order locations (ms). 0 = disabled.
+    bufferingThreshold: 3000
+    # timeout - Server connection timeout (seconds). Closes inactive connections.
+    timeout: 1800
+    # delayAcknowledgement - Delay acknowledgement until after database write.
+    delayAcknowledgement: false
+    # nettyBossThreads - Number of Netty boss threads (0 = Netty default)
+    nettyBossThreads: 0
+    # nettyThreads - Number of Netty worker threads (0 = Netty default)
+    nettyThreads: 0
+    # statistics - URL for anonymous statistics upload (optional)
+    statistics: ""
+    # forward - Host for raw data forwarding to another server
+    forward: ""
+    # forwardConnectTimeout - TCP connect timeout for forwarding (ms)
+    forwardConnectTimeout: 5000
+    # forwardWriteTimeout - TCP write timeout for forwarding (ms)
+    forwardWriteTimeout: 5000
+
+  # -------------------------------------------------------------------------
+  # Web Interface Settings / تنظیمات رابط کاربری وب
+  # -------------------------------------------------------------------------
+  web:
+    # address - Network interface for web binding (empty = all interfaces)
+    address: ""
+    # port - Web port (default 8082, but Kubernetes service maps to 80)
+    port: 8082
+    # path - Path to static web app files
+    path: "web"
+    # override - Path to override folder for branding (logos, etc.)
+    override: "override"
+    # debug - Debug version of web app (development only, lower performance)
+    debug: false
+    # console - Enable H2 database console at /console (debug only, never in production)
+    console: false
+    # timeout - WebSocket connection timeout (ms)
+    timeout: 300000
+    # sessionTimeout - Authentication session timeout (seconds). Empty = unlimited.
+    sessionTimeout: ""
+    # serviceAccountToken - Token for virtual admin account (access recovery) 🔐 Secret
+    serviceAccountToken: ""
+    # origin - CORS Origin header value (for cross-domain access)
+    origin: ""
+    # cacheControl - Cache-Control header value (default: one hour)
+    cacheControl: "max-age=3600,public"
+    # localizationPath - Path to localization/translation files
+    localizationPath: "translations"
+    # requestLogPath - Jetty request log path (must include yyyy_mm_dd pattern)
+    requestLogPath: ""
+    # requestLogRetainDays - Days to retain rotated request logs
+    requestLogRetainDays: ""
+    # disableHealthCheck - Disable systemd health checks (to reduce log noise)
+    disableHealthCheck: true
+    # healthCheckDropThreshold - Drop threshold for health check failure (0.0-1.0)
+    healthCheckDropThreshold: ""
+    # sameSiteCookie - SameSite cookie attribute value (Lax, Strict, None)
+    sameSiteCookie: ""
+    # persistSession - Persist Jetty sessions to database (for clustering)
+    persistSession: false
+    # url - Public web app URL (for notifications, reports, OpenID)
+    url: "demo.carku.ir"
+    # showUnknownDevices - Show logs from unknown devices in web UI
+    showUnknownDevices: false
+    # shareDevice.commands - Enable commands for shared devices
+    shareDeviceCommands: false
+    # shareDevice.reports - Enable reports for shared devices
+    shareDeviceReports: false
+    # mcp.enable - Enable MCP service for AI integration
+    mcpEnable: true
+
+  # -------------------------------------------------------------------------
+  # Geocoder (Reverse Geocoding) / تنظیمات جغرافیای معکوس
+  # -------------------------------------------------------------------------
+  geocoder:
+    # enable - Enable reverse geocoding
+    enable: false
+    # type - Geocoder type (nominatim, locationiq, google, etc.)
+    type: "nominatim"
+    # url - Server URL (for self-hosted Nominatim or Gisgraphy)
+    url: "https://geocoder.carku.ir/reverse"
+    # key - API key (for commercial providers) 🔐 Secret
+    key: ""
+    # language - Output language (e.g., fa, en, de)
+    language: "fa"
+    # format - Address format (default: %h %r, %t, %s, %c)
+    # format: "%h %r, %t, %s, %c"
+    # cacheSize - Geocoding results cache size (number of items)
+    # cacheSize: ""
+    # ignorePositions - Disable automatic geocoding for all positions (on-demand only)
+    ignorePositions: true
+    # reuseDistance - Minimum distance (meters) to request new geocoding (reuse last address)
+    reuseDistance: "10"
+    # onRequest - Perform geocoding when preparing reports/notifications (not on save)
+    onRequest: true
+
+  # -------------------------------------------------------------------------
+  # Geolocation (LBS - Cell Tower & WiFi) / مکان‌یابی مبتنی بر برج سلولی و وای‌فای
+  # -------------------------------------------------------------------------
+  geolocation:
+    # enable - Enable cell/WiFi to coordinates conversion (when GPS missing)
+    enable: false
+    # type - Service type (google, unwired, opencellid)
+    type: ""
+    # url - Service URL (if required for custom services)
+    url: ""
+    # key - API key (for OpenCellID and others) 🔐 Secret
+    key: ""
+    # processInvalidPositions - Apply geolocation to invalid positions
+    processInvalidPositions: false
+    # reuse - Reuse last result if network details unchanged (saves requests)
+    reuse: false
+    # requireWifi - Process only when Wi-Fi available (better accuracy, lower coverage)
+    requireWifi: false
+    # mcc - Default Mobile Country Code if device does not report
+    mcc: ""
+    # mnc - Default Mobile Network Code
+    mnc: ""
+
+  # -------------------------------------------------------------------------
+  # Map Matcher (Snap to Road) / تطابق با نقشه (چسباندن مختصات به جاده)
+  # -------------------------------------------------------------------------
+  mapMatcher:
+    # enable - Enable map matching (snap coordinates to roads)
+    enable: false
+    # type - Provider type (currently only "carku" supported)
+    type: "carku"
+    # url - Map matcher service URL (if self-hosted)
+    url: "https://geocoder.carku.ir/snap"
+    # key - API key for the service 🔐 Secret
+    key: ""
+
+  # -------------------------------------------------------------------------
+  # Speed Limit API / دریافت محدودیت سرعت از روی نقشه
+  # -------------------------------------------------------------------------
+  speedLimit:
+    # enable - Enable speed limit API
+    enable: false
+    # type - Service type (overpass, etc.)
+    type: "overpass"
+    # url - Service URL (Overpass API or similar)
+    url: ""
+    # accuracy - Search radius to find nearest road (meters)
+    accuracy: 100
+
+  # -------------------------------------------------------------------------
+  # Position Filtering / فیلتر کردن موقعیت‌های نامعتبر یا تکراری
+  # -------------------------------------------------------------------------
+  filter:
+    # enable - Enable/disable position filtering globally
+    enable: true
+    # invalid - Filter positions marked as invalid
+    invalid: false
+    # zero - Filter zero coordinates (usually errors)
+    zero: false
+    # duplicate - Filter duplicate records by exact time
+    duplicate: false
+    # outdated - Filter messages without GPS location (use last known)
+    outdated: false
+    # future - Filter if fix time is more than N seconds in the future
+    future: 86400
+    # past - Filter if fix time is more than N seconds in the past
+    past: ""
+    # accuracy - Filter if accuracy (estimated error) is worse than N meters
+    accuracy: ""
+    # approximate - Filter approximate (cell/WiFi) locations
+    approximate: false
+    # static - Filter positions with exactly zero speed
+    static: false
+    # distance - Filter if distance from previous position is less than N meters
+    distance: ""
+    # maxSpeed - Filter if calculated speed exceeds N knots (unrealistic jumps)
+    maxSpeed: ""
+    # minPeriod - Filter if time from previous position is less than N seconds (throttling)
+    minPeriod: ""
+    # dailyLimit - Daily position limit per device (throttling after limit)
+    dailyLimit: ""
+    # dailyLimitInterval - Throttling interval (seconds) after daily limit reached
+    dailyLimitInterval: ""
+    # skipLimit - Time limit (seconds) to skip filtering (if gap larger than this)
+    skipLimit: ""
+    # skipAttributes - Attributes that cause filter to be skipped (e.g., alarm)
+    skipAttributes:
+      # enable - Enable skipping filter based on attribute presence
+      enable: false
+      # attributes - Comma-separated attribute names (e.g., alarm,ignition)
+      attributes: ""
+
+  # -------------------------------------------------------------------------
+  # Distance Calculation / محاسبه مسافت (برای نادیده گرفتن اودومتر دستگاه)
+  # -------------------------------------------------------------------------
+  distance:
+    # enable - Enable server-side distance calculation (if device odometer is wrong)
+    enable: false
+
+  # -------------------------------------------------------------------------
+  # Logger / تنظیمات لاگینگ (ثبت رویدادها)
+  # -------------------------------------------------------------------------
+  logger:
+    # level - Log level: off, severe, warning, info, config, fine, finer, finest, all
+    level: "info"
+    # console - Output to console (stdout) instead of file
+    console: false
+    # queries - Log executed SQL queries (for debugging)
+    queries: false
+    # fullStackTraces - Print full exception traces (instead of summary) - deep debugging
+    fullStackTraces: false
+    # decodeTextData - Log network data as text if printable (instead of HEX)
+    decodeTextData: true
+    # rotateInterval - Log rotation interval (day or hour) - ignored if rotate=false
+    rotateInterval: "day"
+    # attributes - List of position attributes to log (comma-separated)
+    attributes: "time,position,speed,course,accuracy,result"
+
+  # -------------------------------------------------------------------------
+  # Processing / تنظیمات پردازش پیشرفته موقعیت‌ها
+  # -------------------------------------------------------------------------
+  processing:
+    remoteAddress:
+      # enable - Save device IP address in positions
+      enable: false
+    # useLinkedDriver - Use linked driver if device does not send driver ID
+    useLinkedDriver: false
+    copyAttributes:
+      # enable - Copy missing attributes from last position (e.g., ignition)
+      enable: false
+      # attributes - Comma-separated attribute names to copy (no spaces)
+      attributes: ""
+    computedAttributes:
+      # deviceAttributes - Include device attributes in evaluation context
+      deviceAttributes: false
+      # lastAttributes - Include last position attributes
+      lastAttributes: false
+      # localVariables - Enable local variables in expressions
+      localVariables: false
+      # loops - Enable loops (while, for) in expressions (security consideration)
+      loops: false
+      # newInstanceCreation - Enable new instance creation with new(...) (security risk)
+      newInstanceCreation: false
+
+  # -------------------------------------------------------------------------
+  # Database (Used if mysql.enabled = false) / دیتابیس (در صورت غیرفعال بودن MySQL)
+  # -------------------------------------------------------------------------
+  database:
+    # memory - Use in-memory H2 database (testing only, data lost on restart)
+    memory: false
+    # driverFile - Path to database driver JAR (for non-built-in databases)
+    driverFile: ""
+    # driver - JDBC driver class (e.g., org.postgresql.Driver)
+    driver: "org.postgresql.Driver"
+    # url - Full JDBC connection URL
+    url: ""
+    # user - Database username 🔐 Secret
+    user: ""
+    # password - Database password 🔐 Secret
+    password: ""
+    # changelog - Liquibase changelog file path (schema management)
+    changelog: "schema/changelog-master.xml"
+    # maxPoolSize - Maximum number of connections in the pool (HikariCP)
+    maxPoolSize: 20
+    # checkConnection - Connection check query (default SELECT 1)
+    checkConnection: "SELECT 1"
+    # saveOriginal - Save raw data as "raw" attribute in the position
+    saveOriginal: false
+    # throttleUnknown - Throttle unknown device queries on high frequency
+    throttleUnknown: false
+    # registerUnknown - Automatically register unknown devices in database
+    registerUnknown: false
+    registerUnknown:
+      # defaultCategory - Default category for auto-registered devices
+      defaultCategory: ""
+      # defaultGroupId - Default group ID (numeric)
+      defaultGroupId: ""
+      # regex - Regex filter to validate device ID before auto-register
+      regex: "\\w{3,15}"
+    # positionPeriod - Time limit for latest position queries (seconds) - for TimescaleDB
+    positionPeriod: 7776000
+    # saveEmpty - Save empty messages (heartbeats) as positions (with last known location)
+    saveEmpty: false
+    # maxLifetime - Maximum connection lifetime in pool (ms) - prevents stale connections
+    # maxLifetime: ""
+    # positionBatchInterval - Batch insert interval (ms) - 0 = disabled
+    positionBatchInterval: 0
+    # positionBatchSize - Maximum positions per batch (for optimization)
+    positionBatchSize: 100
+
+  # -------------------------------------------------------------------------
+  # Events / رویدادها (هشدارها و وقایع)
+  # -------------------------------------------------------------------------
+  event:
+    # fuelDropThreshold - Fuel drop threshold (liters) to trigger event - 0 = disabled
+    fuelDropThreshold: 0.0
+    # fuelIncreaseThreshold - Fuel increase threshold (liters) - 0 = disabled
+    fuelIncreaseThreshold: 0.0
+    overspeed:
+      # thresholdMultiplier - Speed limit multiplier (e.g., 1.05 for 5% above limit)
+      thresholdMultiplier: 1.0
+      # minimalDuration - Minimal duration of overspeed to trigger event (seconds)
+      minimalDuration: ""
+      # preferLowest - Use the lowest speed limit from all active geofences
+      preferLowest: false
+    behavior:
+      # accelerationThreshold - Acceleration threshold (m/s²)
+      accelerationThreshold: ""
+      # brakingThreshold - Braking threshold (m/s²)
+      brakingThreshold: ""
+    # ignoreDuplicateAlerts - Ignore duplicate alerts from last known position (noise reduction)
+    ignoreDuplicateAlerts: true
+    status:
+      # enable - Generate device connection status events (online/offline)
+      enable: true
+    motion:
+      # speedThreshold - Speed threshold for motion detection (knots, default 0.01)
+      speedThreshold: 0.01
+    forward:
+      # enable - Enable event forwarding
+      enable: false
+      # type - Forwarding format (json, kafka)
+      type: "json"
+      # exchange - AMQP exchange (for RabbitMQ)
+      exchange: "carku"
+      # topic - Kafka topic or AMQP routing key
+      topic: "events"
+      # url - HTTP endpoint URL (if type=json)
+      url: ""
+      # header - Additional HTTP headers (multi-line, key: value) 🔐 Secret
+      header: ""
+
+  # -------------------------------------------------------------------------
+  # General Parameters / پارامترهای عمومی (متفرقه)
+  # -------------------------------------------------------------------------
+  # speedLimitGlobal - Global speed limit (knots) for all devices (if not overridden)
+  speedLimitGlobal: 0.0
+
+  status:
+    # timeout - Time with no data to change status from online to unknown (seconds)
+    timeout: 600
+    # ignoreOffline - List of protocols to ignore offline status (e.g., polling protocols)
+    ignoreOffline: ""
+
+  media:
+    # path - Path to media files storage (subfolders per device created automatically)
+    path: "media"
+
+  templates:
+    # rootPath - Root folder for templates (emails, PDF reports)
+    rootPath: "templates"
+
+  users:
+    # defaultDeviceLimit - Device limit for self-registered users (-1 = unlimited)
+    defaultDeviceLimit: 5
+    # defaultExpirationDays - Default user expiration for self-registered users (days)
+    defaultExpirationDays: 7
+
+  # -------------------------------------------------------------------------
+  # Position Forwarding (to external systems) / ارسال موقعیت‌ها به سیستم خارجی
+  # -------------------------------------------------------------------------
+  forward:
+    # type - Forward type (url, json, kafka)
+    type: "url"
+    # exchange - AMQP exchange (for RabbitMQ)
+    exchange: "carku"
+    # topic - Kafka topic or AMQP routing key
+    topic: "positions"
+    # url - URL for forwarding (supports placeholders: {uniqueId}, {latitude}, {longitude}, etc.)
+    url: ""
+    # header - Additional HTTP header (for authentication or API key) 🔐 Secret
+    header: ""
+    retry:
+      # enable - Enable retries (if 2xx response not received)
+      enable: false
+      # delay - Initial delay (ms) - doubles each retry
+      delay: 100
+      # count - Maximum retry attempts
+      count: 10
+      # limit - Pending positions limit (if exceeded, new positions are dropped)
+      limit: 100
+
+  # -------------------------------------------------------------------------
+  # Mail (SMTP) Settings / تنظیمات ایمیل (ارسال اعلان‌ها و بازیابی رمز)
+  # -------------------------------------------------------------------------
+  mail:
+    # debug - Log emails instead of sending (testing only)
+    debug: false
+    # transportProtocol - Transport protocol (usually smtp)
+    transportProtocol: "smtp"
+    smtp:
+      # systemOnly - Restrict SMTP to system messages only (password reset, server alerts)
+      systemOnly: false
+      # ignoreUserConfig - Force config settings, ignore user attributes (for consistency)
+      ignoreUserConfig: false
+      # host - SMTP server host (e.g., smtp.gmail.com)
+      host: ""
+      # port - SMTP port (usually 25, 465 for SSL, 587 for STARTTLS)
+      port: 25
+      starttls:
+        # enable - Enable STARTTLS
+        enable: false
+        # required - Require STARTTLS (fail if not supported)
+        required: false
+      ssl:
+        # enable - Use SSL (port usually 465)
+        enable: false
+        # trust - Trusted hosts ("*" for all, or space-separated list)
+        trust: ""
+        # protocols - Enabled SSL protocols (e.g., "TLSv1.2 TLSv1.3")
+        protocols: ""
+      # username - SMTP username (if authentication required) 🔐 Secret
+      username: ""
+      # password - SMTP password 🔐 Secret
+      password: ""
+      # from - From email address
+      from: ""
+      # fromName - From display name
+      fromName: ""
+
+  # -------------------------------------------------------------------------
+  # SMS Settings / تنظیمات پیامک (ارسال اعلان و فرمان)
+  # -------------------------------------------------------------------------
+  sms:
+    http:
+      # url - Full URL of SMS API service
+      url: ""
+      # authorizationHeader - Authorization header name (default "Authorization")
+      authorizationHeader: "Authorization"
+      # authorization - Authorization header value (overrides user/password) 🔐 Secret
+      authorization: ""
+      # user - Username for Basic Auth 🔐 Secret
+      user: ""
+      # password - Password for Basic Auth 🔐 Secret
+      password: ""
+      # template - Request body template with {phone} and {message} placeholders
+      template: ""
+    aws:
+      # access - AWS Access Key ID with SNS permission 🔐 Secret
+      access: ""
+      # secret - AWS Secret Access Key 🔐 Secret
+      secret: ""
+      # region - AWS region (e.g., us-east-1)
+      region: ""
+
+  # -------------------------------------------------------------------------
+  # Command Settings / تنظیمات ارسال فرمان (از طریق API خارجی)
+  # -------------------------------------------------------------------------
+  command:
+    # sender - Command sender type (e.g., "firebase", "findHub")
+    # sender: ""
+    client:
+      # serviceAccount - Firebase service account JSON for push commands via FCM 🔐 Secret
+      serviceAccount: ""
+    # findHub:
+    #   url: ""
+    #   key: ""
+
+  # -------------------------------------------------------------------------
+  # Notificator (Notification Manager) / مدیریت اعلان‌ها (پیام به کاربران)
+  # -------------------------------------------------------------------------
+  notificator:
+    # types - Enabled notification types (web, mail, sms, command) - comma-separated
+    types: "web,mail,command"
+    # timeThreshold - Time threshold for old events (ms) - notifications not sent for older events
+    timeThreshold: 900000  # 15 minutes
+    # carku - Carku cloud notification service (instead of carku)
+    carku:
+      # key - Carku notification API key 🔐 Secret
+      key: ""
+    firebase:
+      # serviceAccount - Firebase service account JSON 🔐 Secret
+      serviceAccount: ""
+      # mode - Delivery mode (direct: notification only, data: data only, mixed: both)
+      mode: "direct"
+    pushover:
+      # user - Pushover user key
+      user: ""
+      # token - Pushover application token 🔐 Secret
+      token: ""
+    telegram:
+      # key - Telegram bot token 🔐 Secret
+      key: ""
+      # chatId - Chat ID (numeric) or channel @username
+      chatId: ""
+      # sendLocation - Send location with message
+      sendLocation: false
+      # proxyUrl - Proxy URL (if needed for network restrictions)
+      proxyUrl: ""
+    whatsapp:
+      # token - Permanent access token (from Meta Business Platform) 🔐 Secret
+      token: ""
+      # phoneNumberId - Phone number ID (on Meta platform)
+      phoneNumberId: ""
+      # templateName - Template name (defined on Meta platform)
+      templateName: ""
+      # templateLanguage - Template language code (default en_US)
+      templateLanguage: "en_US"
+
+  # -------------------------------------------------------------------------
+  # Notification Expiration / اعلان‌های مربوط به انقضای حساب کاربری یا دستگاه
+  # -------------------------------------------------------------------------
+  notification:
+    expiration:
+      # user - Enable user expiration notification
+      user: true
+      # userReminder - Reminder time before expiration (ms)
+      userReminder: "200000"
+      # device - Enable device expiration notification
+      device: true
+      # deviceReminder - Device expiration reminder (ms)
+      deviceReminder: "200000"
+    # blockUsers - List of user IDs to block notifications (comma-separated)
+    blockUsers: ""
+
+  # -------------------------------------------------------------------------
+  # Report Settings / تنظیمات گزارشات (سفرها، توقف‌ها، مسافت)
+  # -------------------------------------------------------------------------
+  report:
+    # periodLimit - Maximum allowed report period (seconds) - 0 = unlimited
+    periodLimit: 0
+    # fastThreshold - Threshold for fast reports (seconds) - longer reports use full details
+    fastThreshold: 86400  # 1 day
+    trip:
+      # newLogic - Enable new trip calculation logic (recommended)
+      newLogic: true
+      # minDistance - Minimum distance to consider a trip (meters)
+      minDistance: 200
+      # minDuration - Minimum stop duration to split trips (seconds)
+      minDuration: 180
+      # stopGap - Time gap treated as stop (seconds, default 3600 = 1 hour)
+      stopGap: 3600
+      # minimalTripDistance - Minimal valid trip distance (meters) - shorter trips ignored
+      minimalTripDistance: 500
+      # minimalTripDuration - Minimal valid trip duration (seconds)
+      minimalTripDuration: 300
+      # minimalParkingDuration - Minimum parking duration not to split trip (seconds)
+      minimalParkingDuration: 300
+      # minimalNoDataDuration - Gap without data counted as stop (seconds)
+      minimalNoDataDuration: 3600
+      # useIgnition - Use ignition status in trip calculation (if available)
+      useIgnition: false
+    # ignoreOdometer - Ignore device odometer, use server-calculated distance
+    ignoreOdometer: false
+
+  # -------------------------------------------------------------------------
+  # Coordinates Filter / فیلتر مختصات (برای جلوگیری از جهش‌های ناگهانی)
+  # -------------------------------------------------------------------------
+  # coordinates:
+  #   # filter - Replace coordinates with last known if change less than minError or more than maxError
+  #   filter: false
+  #   # minError - Minimum error distance (meters) - smaller changes ignored
+  #   minError: ""
+  #   # maxError - Maximum error distance (meters) - larger changes ignored
+  #   maxError: ""
+
+  # -------------------------------------------------------------------------
+  # Location Hemisphere Override / جایگزینی نیمکره (برای رفع باگ دستگاه)
+  # -------------------------------------------------------------------------
+  # location:
+  #   # latitudeHemisphere - Override latitude hemisphere (N or S)
+  #   latitudeHemisphere: ""
+  #   # longitudeHemisphere - Override longitude hemisphere (E or W)
+  #   longitudeHemisphere: ""
+
+  # -------------------------------------------------------------------------
+  # Time Override / جایگزینی زمان دستگاه
+  # -------------------------------------------------------------------------
+  time:
+    # override - Override device time (deviceTime or serverTime)
+    override: "serverTime"
+    # protocols - List of protocols to apply time override (empty = all)
+    protocols: ""
+
+  # -------------------------------------------------------------------------
+  # Protocol Selection / انتخاب پروتکل‌های فعال (در صورت تمایل به محدود کردن)
+  # -------------------------------------------------------------------------
+  protocols:
+    # enable - List of enabled protocols (comma-separated, e.g., "teltonika,osmand")
+    enable: ""
+
+  # -------------------------------------------------------------------------
+  # GlobalSat Formats (برای دستگاه‌های GlobalSat با فرمت سفارشی)
+  # -------------------------------------------------------------------------
+  globalsat:
+    # format0 - Custom format string 0 (default contains standard fields)
+    format0: "TSPRXAB27GHKLMnaicz*U!"
+    # format1 - Custom format string 1
+    format1: "SARY*U!"
+
+  # -------------------------------------------------------------------------
+  # Device Manager / تنظیمات مدیریت دستگاه
+  # -------------------------------------------------------------------------
+  # deviceManager:
+  #   # lookupGroupsAttribute - Attribute for device group lookup in protocols
+  #   lookupGroupsAttribute: ""
+
+  # -------------------------------------------------------------------------
+  # Wialon Protocol Settings / تنظیمات پروتکل Wialon (تبادل داده با Wialon)
+  # -------------------------------------------------------------------------
+  wialon:
+    # utf8 - Use UTF-8 instead of ASCII for text decoding
+    utf8: false
+
+  # -------------------------------------------------------------------------
+  # Suntech Protocol Settings / تنظیمات پروتکل Suntech
+  # -------------------------------------------------------------------------
+  # suntech:
+  #   # protocolType - Suntech protocol type
+  #   protocolType: ""
+  #   # hbm - Suntech HBM value
+  #   hbm: ""
+
+  # -------------------------------------------------------------------------
+  # OsmAnd Settings / تنظیمات برنامه OsmAnd
+  # -------------------------------------------------------------------------
+  # osmand:
+  #   # minAccuracy - Minimum accuracy to include (meters)
+  #   minAccuracy: 10.0
+
+  # -------------------------------------------------------------------------
+  # Decoder Settings / تنظیمات رمزگشا
+  # -------------------------------------------------------------------------
+  # decoder:
+  #   # timezone - Device time zone (e.g., "UTC", "Asia/Tehran")
+  #   timezone: ""
+
+  # -------------------------------------------------------------------------
+  # Device Specific Parameters (non-sensitive) / پارامترهای خاص دستگاه (غیرحساس)
+  # -------------------------------------------------------------------------
+  # fuelCapacity - Fuel tank capacity in liters
+  # fuelCapacity: ""
+  # proximityEnterDistance - Distance in meters to trigger proximity enter event (0 = disabled)
+  # proximityEnterDistance: 0.0
+  # proximityExitDistance - Distance in meters to trigger proximity exit event (0 = disabled)
+  # proximityExitDistance: 0.0
+  # unaccompaniedDistance - Distance in meters for unaccompanied motion event (0 = disabled)
+  # unaccompaniedDistance: 0.0
+  # disableShare - Disable device sharing on the server
+  # disableShare: false
+
+  # -------------------------------------------------------------------------
+  # Orbcomm Settings / تنظیمات Orbcomm (ماهواره)
+  # -------------------------------------------------------------------------
+  # orbcomm:
+  #   # accessId - Orbcomm API access id 🔐 Secret
+  #   accessId: ""
+  #   # password - Orbcomm API password 🔐 Secret
+  #   password: ""
+
+  # -------------------------------------------------------------------------
+  # Smartcar Settings / تنظیمات Smartcar
+  # -------------------------------------------------------------------------
+  # smartcar:
+  #   # managementToken - Smartcar management token used for webhook verification 🔐 Secret
+  #   managementToken: ""
+
+  # -------------------------------------------------------------------------
+  # Device Password (sensitive) / رمز دستگاه (حساس)
+  # -------------------------------------------------------------------------
+  # devicePassword: ""
+
+  # -------------------------------------------------------------------------
+  # LDAP Authentication / تنظیمات احراز هویت LDAP (Active Directory, OpenLDAP)
+  # -------------------------------------------------------------------------
+  # ldap:
+  #   # url - LDAP server URL (e.g., ldap://localhost:389 or ldaps://...)
+  #   url: ""
+  #   # user - Bind username (DN) - usually a read-only user 🔐 Secret
+  #   user: ""
+  #   # password - Bind password 🔐 Secret
+  #   password: ""
+  #   # force - Force LDAP authentication (disable internal login)
+  #   force: false
+  #   # base - Search base for users (e.g., ou=users,dc=example,dc=com)
+  #   base: ""
+  #   # idAttribute - LDAP attribute used as user ID (default uid)
+  #   idAttribute: "uid"
+  #   # nameAttribute - LDAP attribute for display name (default cn)
+  #   nameAttribute: "cn"
+  #   # mailAttribute - LDAP attribute for email (default mail)
+  #   mailAttribute: "mail"
+  #   # searchFilter - Custom search filter (default "({idAttribute}=:login)")
+  #   searchFilter: ""
+  #   # adminFilter - Filter to identify admin users (e.g., "(memberOf=cn=admins,ou=groups,...)")
+  #   adminFilter: ""
+  #   # adminGroup - Admin group name/DN (if adminFilter not set)
+  #   adminGroup: ""
+
+  # -------------------------------------------------------------------------
+  # OpenID Connect (OAuth2 / SSO) / تنظیمات ورود یکپارچه با OpenID Connect
+  # -------------------------------------------------------------------------
+  # openid:
+  #   # clients - List of built-in clients (format "clientId:clientSecret:redirectUri") 🔐 Secret
+  #   clients: ""
+  #   # force - Force OpenID authentication (skip internal login page)
+  #   force: false
+  #   # allowRegistration - Allow auto-creation of new OpenID users even if server registration disabled
+  #   allowRegistration: false
+  #   # clientId - Client ID (for simple single-client setup)
+  #   clientId: ""
+  #   # clientSecret - Client secret 🔐 Secret
+  #   clientSecret: ""
+  #   # issuerUrl - Issuer URL (for auto-configuration via well-known)
+  #   issuerUrl: ""
+  #   # authUrl - Authorization endpoint URL (if not using issuerUrl)
+  #   authUrl: ""
+  #   # tokenUrl - Token endpoint URL
+  #   tokenUrl: ""
+  #   # userInfoUrl - UserInfo endpoint URL
+  #   userInfoUrl: ""
+  #   # groupsClaimName - Claim name for groups (default "groups")
+  #   groupsClaimName: "groups"
+  #   # allowGroup - Group allowed to access (if set, only members of this group can log in)
+  #   allowGroup: ""
+  #   # adminGroup - Admin group (members become administrators)
+  #   adminGroup: ""
+
+  # -------------------------------------------------------------------------
+  # Broadcast (Clustering) / تنظیمات خوشه‌بندی (برای چندین سرور)
+  # -------------------------------------------------------------------------
+  # broadcast:
+  #   # type - Broadcast type (multicast, redis) - empty = disabled
+  #   type: ""
+  #   # interface - Network interface for multicast (IP or interface name)
+  #   interface: ""
+  #   # address - Multicast address (e.g., 230.0.0.1) or Redis URL
+  #   address: ""
+  #   # port - Multicast port (e.g., 4446)
+  #   port: ""
+  #   # secondary - Mark as secondary server (some tasks run only on main)
+  #   secondary: false
+
+  # -------------------------------------------------------------------------
+  # TOTP (Two-Factor Authentication) / تنظیمات احراز هویت دو مرحله‌ای
+  # -------------------------------------------------------------------------
+  totp:
+    # enable - Enable TOTP authentication on server (users can set it up)
+    enable: true
+    # force - Force TOTP for new users (and require existing users to set up)
+    force: false
+
+# =============================================================================
+# End of values.yaml
+# پایان فایل values.yaml
+#=============================================================================

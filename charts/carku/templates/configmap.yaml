@@ -1,0 +1,1010 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "carku.fullname" . }}
+  labels:
+{{- include "carku.labels" . | nindent 4 }}
+data:
+  carku.xml: |
+{{- if .Values.configOverride }}
+{{- .Values.configOverride | nindent 4 }}
+{{- else }}
+    <?xml version='1.0' encoding='UTF-8'?>
+    <!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>
+    <properties>
+        <entry key='config.default'>./conf/default.xml</entry>
+        <entry key='config.useEnvironmentVariables'>true</entry>
+
+{{- if .Values.carku.server }}
+{{- if .Values.carku.server.bufferingThreshold }}
+        <entry key='server.buffering.threshold'>{{ .Values.carku.server.bufferingThreshold }}</entry>
+{{- end }}
+{{- if .Values.carku.server.timeout }}
+        <entry key='server.timeout'>{{ .Values.carku.server.timeout }}</entry>
+{{- end }}
+{{- if .Values.carku.server.delayAcknowledgement }}
+        <entry key='server.delayAcknowledgement'>{{ .Values.carku.server.delayAcknowledgement }}</entry>
+{{- end }}
+{{- if .Values.carku.server.nettyBossThreads }}
+        <entry key='server.nettyBossThreads'>{{ .Values.carku.server.nettyBossThreads }}</entry>
+{{- end }}
+{{- if .Values.carku.server.nettyThreads }}
+        <entry key='server.nettyThreads'>{{ .Values.carku.server.nettyThreads }}</entry>
+{{- end }}
+{{- if .Values.carku.server.statistics }}
+        <entry key='server.statistics'>{{ .Values.carku.server.statistics }}</entry>
+{{- end }}
+{{- if .Values.carku.server.forward }}
+        <entry key='server.forward'>{{ .Values.carku.server.forward }}</entry>
+{{- end }}
+{{- if .Values.carku.server.forwardConnectTimeout }}
+        <entry key='server.forward.connectTimeout'>{{ .Values.carku.server.forwardConnectTimeout }}</entry>
+{{- end }}
+{{- if .Values.carku.server.forwardWriteTimeout }}
+        <entry key='server.forward.writeTimeout'>{{ .Values.carku.server.forwardWriteTimeout }}</entry>
+{{- end }}
+{{- end }}
+
+{{- if .Values.carku.web }}
+{{- if .Values.carku.web.address }}
+        <entry key='web.address'>{{ .Values.carku.web.address }}</entry>
+{{- end }}
+{{- if .Values.carku.web.port }}
+        <entry key='web.port'>{{ .Values.carku.web.port }}</entry>
+{{- end }}
+{{- if .Values.carku.web.path }}
+        <entry key='web.path'>{{ .Values.carku.web.path }}</entry>
+{{- end }}
+{{- if .Values.carku.web.override }}
+        <entry key='web.override'>{{ .Values.carku.web.override }}</entry>
+{{- end }}
+{{- if .Values.carku.web.debug }}
+        <entry key='web.debug'>{{ .Values.carku.web.debug }}</entry>
+{{- end }}
+{{- if .Values.carku.web.console }}
+        <entry key='web.console'>{{ .Values.carku.web.console }}</entry>
+{{- end }}
+{{- if .Values.carku.web.timeout }}
+        <entry key='web.timeout'>{{ .Values.carku.web.timeout }}</entry>
+{{- end }}
+{{- if .Values.carku.web.sessionTimeout }}
+        <entry key='web.sessionTimeout'>{{ .Values.carku.web.sessionTimeout }}</entry>
+{{- end }}
+{{- if .Values.carku.web.origin }}
+        <entry key='web.origin'>{{ .Values.carku.web.origin }}</entry>
+{{- end }}
+{{- if .Values.carku.web.cacheControl }}
+        <entry key='web.cacheControl'>{{ .Values.carku.web.cacheControl }}</entry>
+{{- end }}
+{{- if .Values.carku.web.localizationPath }}
+        <entry key='web.localizationPath'>{{ .Values.carku.web.localizationPath }}</entry>
+{{- end }}
+{{- if .Values.carku.web.requestLogPath }}
+        <entry key='web.requestLog.path'>{{ .Values.carku.web.requestLogPath }}</entry>
+{{- end }}
+{{- if .Values.carku.web.requestLogRetainDays }}
+        <entry key='web.requestLog.retainDays'>{{ .Values.carku.web.requestLogRetainDays }}</entry>
+{{- end }}
+{{- if .Values.carku.web.disableHealthCheck }}
+        <entry key='web.disableHealthCheck'>{{ .Values.carku.web.disableHealthCheck }}</entry>
+{{- end }}
+{{- if .Values.carku.web.healthCheckDropThreshold }}
+        <entry key='web.healthCheck.dropThreshold'>{{ .Values.carku.web.healthCheckDropThreshold }}</entry>
+{{- end }}
+{{- if .Values.carku.web.sameSiteCookie }}
+        <entry key='web.sameSiteCookie'>{{ .Values.carku.web.sameSiteCookie }}</entry>
+{{- end }}
+{{- if .Values.carku.web.persistSession }}
+        <entry key='web.persistSession'>{{ .Values.carku.web.persistSession }}</entry>
+{{- end }}
+{{- if .Values.carku.web.url }}
+        <entry key='web.url'>{{ .Values.carku.web.url }}</entry>
+{{- end }}
+{{- if .Values.carku.web.showUnknownDevices }}
+        <entry key='web.showUnknownDevices'>{{ .Values.carku.web.showUnknownDevices }}</entry>
+{{- end }}
+{{- if .Values.carku.web.shareDeviceCommands }}
+        <entry key='web.shareDevice.commands'>{{ .Values.carku.web.shareDeviceCommands }}</entry>
+{{- end }}
+{{- if .Values.carku.web.shareDeviceReports }}
+        <entry key='web.shareDevice.reports'>{{ .Values.carku.web.shareDeviceReports }}</entry>
+{{- end }}
+{{- if .Values.carku.web.mcpEnable }}
+        <entry key='web.mcp.enable'>{{ .Values.carku.web.mcpEnable }}</entry>
+{{- end }}
+{{- end }}
+
+{{- if .Values.carku.geocoder }}
+{{- if .Values.carku.geocoder.enable }}
+        <entry key='geocoder.enable'>true</entry>
+{{- else }}
+        <entry key='geocoder.enable'>false</entry>
+{{- end }}
+{{- if .Values.carku.geocoder.type }}
+        <entry key='geocoder.type'>{{ .Values.carku.geocoder.type }}</entry>
+{{- end }}
+{{- if .Values.carku.geocoder.url }}
+        <entry key='geocoder.url'>{{ .Values.carku.geocoder.url }}</entry>
+{{- end }}
+{{- if .Values.carku.geocoder.language }}
+        <entry key='geocoder.language'>{{ .Values.carku.geocoder.language }}</entry>
+{{- end }}
+{{- if .Values.carku.geocoder.format }}
+        <entry key='geocoder.format'>{{ .Values.carku.geocoder.format }}</entry>
+{{- end }}
+{{- if .Values.carku.geocoder.cacheSize }}
+        <entry key='geocoder.cacheSize'>{{ .Values.carku.geocoder.cacheSize }}</entry>
+{{- end }}
+{{- if .Values.carku.geocoder.ignorePositions }}
+        <entry key='geocoder.ignorePositions'>true</entry>
+{{- else }}
+        <entry key='geocoder.ignorePositions'>false</entry>
+{{- end }}
+{{- if .Values.carku.geocoder.reuseDistance }}
+        <entry key='geocoder.reuseDistance'>{{ .Values.carku.geocoder.reuseDistance }}</entry>
+{{- end }}
+{{- if .Values.carku.geocoder.onRequest }}
+        <entry key='geocoder.onRequest'>true</entry>
+{{- else }}
+        <entry key='geocoder.onRequest'>false</entry>
+{{- end }}
+{{- end }}
+
+{{- if .Values.carku.geolocation }}
+{{- if .Values.carku.geolocation.enable }}
+        <entry key='geolocation.enable'>true</entry>
+{{- else }}
+        <entry key='geolocation.enable'>false</entry>
+{{- end }}
+{{- if .Values.carku.geolocation.type }}
+        <entry key='geolocation.type'>{{ .Values.carku.geolocation.type }}</entry>
+{{- end }}
+{{- if .Values.carku.geolocation.url }}
+        <entry key='geolocation.url'>{{ .Values.carku.geolocation.url }}</entry>
+{{- end }}
+{{- if .Values.carku.geolocation.processInvalidPositions }}
+        <entry key='geolocation.processInvalidPositions'>true</entry>
+{{- else }}
+        <entry key='geolocation.processInvalidPositions'>false</entry>
+{{- end }}
+{{- if .Values.carku.geolocation.reuse }}
+        <entry key='geolocation.reuse'>true</entry>
+{{- else }}
+        <entry key='geolocation.reuse'>false</entry>
+{{- end }}
+{{- if .Values.carku.geolocation.requireWifi }}
+        <entry key='geolocation.requireWifi'>true</entry>
+{{- else }}
+        <entry key='geolocation.requireWifi'>false</entry>
+{{- end }}
+{{- if .Values.carku.geolocation.mcc }}
+        <entry key='geolocation.mcc'>{{ .Values.carku.geolocation.mcc }}</entry>
+{{- end }}
+{{- if .Values.carku.geolocation.mnc }}
+        <entry key='geolocation.mnc'>{{ .Values.carku.geolocation.mnc }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Filter settings -->
+{{- if .Values.carku.filter.enable }}
+        <entry key='filter.enable'>true</entry>
+{{- if .Values.carku.filter.invalid }}
+        <entry key='filter.invalid'>true</entry>
+{{- else }}
+        <entry key='filter.invalid'>false</entry>
+{{- end }}
+{{- if .Values.carku.filter.zero }}
+        <entry key='filter.zero'>true</entry>
+{{- else }}
+        <entry key='filter.zero'>false</entry>
+{{- end }}
+{{- if .Values.carku.filter.duplicate }}
+        <entry key='filter.duplicate'>true</entry>
+{{- else }}
+        <entry key='filter.duplicate'>false</entry>
+{{- end }}
+{{- if .Values.carku.filter.outdated }}
+        <entry key='filter.outdated'>true</entry>
+{{- else }}
+        <entry key='filter.outdated'>false</entry>
+{{- end }}
+{{- if .Values.carku.filter.future }}
+        <entry key='filter.future'>{{ .Values.carku.filter.future }}</entry>
+{{- end }}
+{{- if .Values.carku.filter.past }}
+        <entry key='filter.past'>{{ .Values.carku.filter.past }}</entry>
+{{- end }}
+{{- if .Values.carku.filter.accuracy }}
+        <entry key='filter.accuracy'>{{ .Values.carku.filter.accuracy }}</entry>
+{{- end }}
+{{- if .Values.carku.filter.approximate }}
+        <entry key='filter.approximate'>true</entry>
+{{- else }}
+        <entry key='filter.approximate'>false</entry>
+{{- end }}
+{{- if .Values.carku.filter.static }}
+        <entry key='filter.static'>true</entry>
+{{- else }}
+        <entry key='filter.static'>false</entry>
+{{- end }}
+{{- if .Values.carku.filter.distance }}
+        <entry key='filter.distance'>{{ .Values.carku.filter.distance }}</entry>
+{{- end }}
+{{- if .Values.carku.filter.maxSpeed }}
+        <entry key='filter.maxSpeed'>{{ .Values.carku.filter.maxSpeed }}</entry>
+{{- end }}
+{{- if .Values.carku.filter.minPeriod }}
+        <entry key='filter.minPeriod'>{{ .Values.carku.filter.minPeriod }}</entry>
+{{- end }}
+{{- if .Values.carku.filter.dailyLimit }}
+        <entry key='filter.dailyLimit'>{{ .Values.carku.filter.dailyLimit }}</entry>
+{{- end }}
+{{- if .Values.carku.filter.dailyLimitInterval }}
+        <entry key='filter.dailyLimitInterval'>{{ .Values.carku.filter.dailyLimitInterval }}</entry>
+{{- end }}
+{{- if .Values.carku.filter.skipLimit }}
+        <entry key='filter.skipLimit'>{{ .Values.carku.filter.skipLimit }}</entry>
+{{- end }}
+{{- if .Values.carku.filter.skipAttributes.enable }}
+        <entry key='filter.skipAttributes.enable'>true</entry>
+        <entry key='filter.skipAttributes'>{{ .Values.carku.filter.skipAttributes.attributes }}</entry>
+{{- else }}
+        <entry key='filter.skipAttributes.enable'>false</entry>
+{{- end }}
+{{- else }}
+        <entry key='filter.enable'>false</entry>
+{{- end }}
+
+    <!-- Decoder settings -->
+{{- if .Values.carku.decoder }}
+{{- if .Values.carku.decoder.timezone }}
+        <entry key='decoder.timezone'>{{ .Values.carku.decoder.timezone }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Device specific settings (non-sensitive) -->
+{{- if .Values.carku.device }}
+{{- if .Values.carku.device.fuelCapacity }}
+        <entry key='fuelCapacity'>{{ .Values.carku.device.fuelCapacity }}</entry>
+{{- end }}
+{{- if .Values.carku.device.proximityEnterDistance }}
+        <entry key='proximityEnterDistance'>{{ .Values.carku.device.proximityEnterDistance }}</entry>
+{{- end }}
+{{- if .Values.carku.device.proximityExitDistance }}
+        <entry key='proximityExitDistance'>{{ .Values.carku.device.proximityExitDistance }}</entry>
+{{- end }}
+{{- if .Values.carku.device.unaccompaniedDistance }}
+        <entry key='unaccompaniedDistance'>{{ .Values.carku.device.unaccompaniedDistance }}</entry>
+{{- end }}
+{{- if .Values.carku.device.disableShare }}
+        <entry key='disableShare'>true</entry>
+{{- else }}
+        <entry key='disableShare'>false</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Command sender -->
+{{- if .Values.carku.command }}
+{{- if .Values.carku.command.sender }}
+        <entry key='command.sender'>{{ .Values.carku.command.sender }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Suntech protocol settings -->
+{{- if .Values.carku.suntech }}
+{{- if .Values.carku.suntech.protocolType }}
+        <entry key='suntech.protocolType'>{{ .Values.carku.suntech.protocolType }}</entry>
+{{- end }}
+{{- if .Values.carku.suntech.hbm }}
+        <entry key='suntech.hbm'>{{ .Values.carku.suntech.hbm }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- OsmAnd settings -->
+{{- if .Values.carku.osmand }}
+{{- if .Values.carku.osmand.minAccuracy }}
+        <entry key='osmand.minAccuracy'>{{ .Values.carku.osmand.minAccuracy }}</entry>
+{{- else }}
+        <entry key='osmand.minAccuracy'>10.0</entry>
+{{- end }}
+{{- end }}
+
+{{- if .Values.carku.distance }}
+{{- if .Values.carku.distance.enable }}
+        <entry key='distance.enable'>true</entry>
+{{- else }}
+        <entry key='distance.enable'>false</entry>
+{{- end }}
+{{- end }}
+
+{{- if .Values.carku.logger }}
+{{- if .Values.carku.logger.level }}
+        <entry key='logger.level'>{{ lower .Values.carku.logger.level }}</entry>
+        <entry key='logger.file'>/dev/stdout</entry>
+        <entry key='logger.rotate'>false</entry>
+{{- end }}
+{{- if .Values.carku.logger.console }}
+        <entry key='logger.console'>true</entry>
+{{- else }}
+        <entry key='logger.console'>false</entry>
+{{- end }}
+{{- if .Values.carku.logger.queries }}
+        <entry key='logger.queries'>true</entry>
+{{- else }}
+        <entry key='logger.queries'>false</entry>
+{{- end }}
+{{- if .Values.carku.logger.fullStackTraces }}
+        <entry key='logger.fullStackTraces'>true</entry>
+{{- else }}
+        <entry key='logger.fullStackTraces'>false</entry>
+{{- end }}
+{{- if .Values.carku.logger.decodeTextData }}
+        <entry key='logger.decodeTextData'>true</entry>
+{{- else }}
+        <entry key='logger.decodeTextData'>false</entry>
+{{- end }}
+{{- if .Values.carku.logger.rotateInterval }}
+        <entry key='logger.rotate.interval'>{{ .Values.carku.logger.rotateInterval }}</entry>
+{{- end }}
+{{- if .Values.carku.logger.attributes }}
+        <entry key='logger.attributes'>{{ .Values.carku.logger.attributes }}</entry>
+{{- end }}
+{{- end }}
+
+{{- if .Values.carku.processing.remoteAddress.enable }}
+        <entry key='processing.remoteAddress.enable'>true</entry>
+{{- else }}
+        <entry key='processing.remoteAddress.enable'>false</entry>
+{{- end }}
+{{- if .Values.carku.processing.useLinkedDriver }}
+        <entry key='processing.useLinkedDriver'>true</entry>
+{{- else }}
+        <entry key='processing.useLinkedDriver'>false</entry>
+{{- end }}
+{{- if .Values.carku.processing.copyAttributes.enable }}
+        <entry key='processing.copyAttributes.enable'>true</entry>
+{{- else }}
+        <entry key='processing.copyAttributes.enable'>false</entry>
+{{- end }}
+{{- if .Values.carku.processing.copyAttributes.enable }}
+{{- if .Values.carku.processing.copyAttributes.attributes }}
+        <entry key='processing.copyAttributes'>{{ .Values.carku.processing.copyAttributes.attributes }}</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.processing.computedAttributes }}
+{{- if .Values.carku.processing.computedAttributes.deviceAttributes }}
+        <entry key='processing.computedAttributes.deviceAttributes'>true</entry>
+{{- else }}
+        <entry key='processing.computedAttributes.deviceAttributes'>false</entry>
+{{- end }}
+{{- if .Values.carku.processing.computedAttributes.lastAttributes }}
+        <entry key='processing.computedAttributes.lastAttributes'>true</entry>
+{{- else }}
+        <entry key='processing.computedAttributes.lastAttributes'>false</entry>
+{{- end }}
+{{- if .Values.carku.processing.computedAttributes.localVariables }}
+        <entry key='processing.computedAttributes.localVariables'>true</entry>
+{{- else }}
+        <entry key='processing.computedAttributes.localVariables'>false</entry>
+{{- end }}
+{{- if .Values.carku.processing.computedAttributes.loops }}
+        <entry key='processing.computedAttributes.loops'>true</entry>
+{{- else }}
+        <entry key='processing.computedAttributes.loops'>false</entry>
+{{- end }}
+{{- if .Values.carku.processing.computedAttributes.newInstanceCreation }}
+        <entry key='processing.computedAttributes.newInstanceCreation'>true</entry>
+{{- else }}
+        <entry key='processing.computedAttributes.newInstanceCreation'>false</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Database settings (credentials from environment variables) -->
+{{- if or .Values.carku.database .Values.mysql.enabled .Values.postgresql.enabled .Values.h2.enabled }}
+{{- if .Values.mysql.enabled }}
+        <entry key='database.driver'>com.mysql.cj.jdbc.Driver</entry>
+        <entry key='database.url'>jdbc:mysql://{{ include "carku.fullname" . }}-mysql:3306/{{ .Values.mysql.auth.database }}?zeroDateTimeBehavior=round&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true&amp;useSSL=false&amp;allowMultiQueries=true&amp;autoReconnect=true&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;sessionVariables=sql_mode=''</entry>
+{{- else if .Values.postgresql.enabled }}
+        <entry key='database.driver'>org.postgresql.Driver</entry>
+        <entry key='database.url'>jdbc:postgresql://{{ include "carku.fullname" . }}-postgresql:5432/{{ .Values.postgresql.auth.database }}?ssl=false</entry>
+{{- else }}
+{{- if .Values.carku.database.driverFile }}
+        <entry key='database.driverFile'>{{ .Values.carku.database.driverFile }}</entry>
+{{- end }}
+{{- if .Values.carku.database.driver }}
+        <entry key='database.driver'>{{ .Values.carku.database.driver }}</entry>
+{{- end }}
+{{- if .Values.carku.database.url }}
+        <entry key='database.url'>{{ .Values.carku.database.url }}</entry>
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.carku.database }}
+{{- if .Values.carku.database.memory }}
+        <entry key='database.memory'>true</entry>
+{{- else }}
+        <entry key='database.memory'>false</entry>
+{{- end }}
+{{- if .Values.carku.database.changelog }}
+        <entry key='database.changelog'>{{ .Values.carku.database.changelog }}</entry>
+{{- end }}
+{{- if .Values.carku.database.maxPoolSize }}
+        <entry key='database.maxPoolSize'>{{ .Values.carku.database.maxPoolSize }}</entry>
+{{- end }}
+{{- if .Values.carku.database.checkConnection }}
+        <entry key='database.checkConnection'>{{ .Values.carku.database.checkConnection }}</entry>
+{{- end }}
+{{- if .Values.carku.database.saveOriginal }}
+        <entry key='database.saveOriginal'>true</entry>
+{{- else }}
+        <entry key='database.saveOriginal'>false</entry>
+{{- end }}
+{{- if .Values.carku.database.throttleUnknown }}
+        <entry key='database.throttleUnknown'>true</entry>
+{{- else }}
+        <entry key='database.throttleUnknown'>false</entry>
+{{- end }}
+{{- if .Values.carku.database.registerUnknown }}
+        <entry key='database.registerUnknown'>true</entry>
+{{- else }}
+        <entry key='database.registerUnknown'>false</entry>
+{{- end }}
+{{- if .Values.carku.database.registerUnknown.defaultCategory }}
+        <entry key='database.registerUnknown.defaultCategory'>{{ .Values.carku.database.registerUnknown.defaultCategory }}</entry>
+{{- end }}
+{{- if .Values.carku.database.registerUnknown.defaultGroupId }}
+        <entry key='database.registerUnknown.defaultGroupId'>{{ .Values.carku.database.registerUnknown.defaultGroupId }}</entry>
+{{- end }}
+{{- if .Values.carku.database.registerUnknown.regex }}
+        <entry key='database.registerUnknown.regex'>{{ .Values.carku.database.registerUnknown.regex }}</entry>
+{{- end }}
+{{- if .Values.carku.database.positionPeriod }}
+        <entry key='database.positionPeriod'>{{ .Values.carku.database.positionPeriod }}</entry>
+{{- end }}
+{{- if .Values.carku.database.saveEmpty }}
+        <entry key='database.saveEmpty'>true</entry>
+{{- else }}
+        <entry key='database.saveEmpty'>false</entry>
+{{- end }}
+{{- if .Values.carku.database.maxLifetime }}
+        <entry key='database.maxLifetime'>{{ .Values.carku.database.maxLifetime }}</entry>
+{{- end }}
+{{- if .Values.carku.database.positionBatchInterval }}
+        <entry key='database.positionBatchInterval'>{{ .Values.carku.database.positionBatchInterval }}</entry>
+{{- end }}
+{{- if .Values.carku.database.positionBatchSize }}
+        <entry key='database.positionBatchSize'>{{ .Values.carku.database.positionBatchSize }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- GlobalSat formats -->
+{{- if .Values.carku.globalsat }}
+{{- if .Values.carku.globalsat.format0 }}
+        <entry key='globalsat.format0'>{{ .Values.carku.globalsat.format0 }}</entry>
+{{- end }}
+{{- if .Values.carku.globalsat.format1 }}
+        <entry key='globalsat.format1'>{{ .Values.carku.globalsat.format1 }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Coordinates filtering -->
+{{- if .Values.carku.coordinates }}
+{{- if .Values.carku.coordinates.filter }}
+        <entry key='coordinates.filter'>true</entry>
+{{- else }}
+        <entry key='coordinates.filter'>false</entry>
+{{- end }}
+{{- if .Values.carku.coordinates.minError }}
+        <entry key='coordinates.minError'>{{ .Values.carku.coordinates.minError }}</entry>
+{{- end }}
+{{- if .Values.carku.coordinates.maxError }}
+        <entry key='coordinates.maxError'>{{ .Values.carku.coordinates.maxError }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Event settings -->
+{{- if .Values.carku.event }}
+{{- if .Values.carku.event.fuelDropThreshold }}
+        <entry key='fuelDropThreshold'>{{ .Values.carku.event.fuelDropThreshold }}</entry>
+{{- end }}
+{{- if .Values.carku.event.fuelIncreaseThreshold }}
+        <entry key='fuelIncreaseThreshold'>{{ .Values.carku.event.fuelIncreaseThreshold }}</entry>
+{{- end }}
+{{- if .Values.carku.event.overspeed }}
+{{- if .Values.carku.event.overspeed.thresholdMultiplier }}
+        <entry key='event.overspeed.thresholdMultiplier'>{{ .Values.carku.event.overspeed.thresholdMultiplier }}</entry>
+{{- end }}
+{{- if .Values.carku.event.overspeed.minimalDuration }}
+        <entry key='event.overspeed.minimalDuration'>{{ .Values.carku.event.overspeed.minimalDuration }}</entry>
+{{- end }}
+{{- if .Values.carku.event.overspeed.preferLowest }}
+        <entry key='event.overspeed.preferLowest'>true</entry>
+{{- else }}
+        <entry key='event.overspeed.preferLowest'>false</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.event.behavior }}
+{{- if .Values.carku.event.behavior.accelerationThreshold }}
+        <entry key='event.behavior.accelerationThreshold'>{{ .Values.carku.event.behavior.accelerationThreshold }}</entry>
+{{- end }}
+{{- if .Values.carku.event.behavior.brakingThreshold }}
+        <entry key='event.behavior.brakingThreshold'>{{ .Values.carku.event.behavior.brakingThreshold }}</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.event.ignoreDuplicateAlerts }}
+        <entry key='event.ignoreDuplicateAlerts'>true</entry>
+{{- else }}
+        <entry key='event.ignoreDuplicateAlerts'>false</entry>
+{{- end }}
+{{- if .Values.carku.event.status }}
+{{- if .Values.carku.event.status.enable }}
+        <entry key='event.status.enable'>true</entry>
+{{- else }}
+        <entry key='event.status.enable'>false</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.event.motion }}
+{{- if .Values.carku.event.motion.speedThreshold }}
+        <entry key='event.motion.speedThreshold'>{{ .Values.carku.event.motion.speedThreshold }}</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.event.forward }}
+{{- if .Values.carku.event.forward.enable }}
+        <entry key='event.forward.enable'>true</entry>
+{{- else }}
+        <entry key='event.forward.enable'>false</entry>
+{{- end }}
+{{- if .Values.carku.event.forward.type }}
+        <entry key='event.forward.type'>{{ .Values.carku.event.forward.type }}</entry>
+{{- end }}
+{{- if .Values.carku.event.forward.exchange }}
+        <entry key='event.forward.exchange'>{{ .Values.carku.event.forward.exchange }}</entry>
+{{- end }}
+{{- if .Values.carku.event.forward.topic }}
+        <entry key='event.forward.topic'>{{ .Values.carku.event.forward.topic }}</entry>
+{{- end }}
+{{- if .Values.carku.event.forward.url }}
+        <entry key='event.forward.url'>{{ .Values.carku.event.forward.url }}</entry>
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.carku.deviceManager }}
+{{- if .Values.carku.deviceManager.lookupGroupsAttribute }}
+        <entry key='deviceManager.lookupGroupsAttribute'>{{ .Values.carku.deviceManager.lookupGroupsAttribute }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Forwarding settings -->
+{{- if .Values.carku.forward }}
+{{- if .Values.carku.forward.type }}
+        <entry key='forward.type'>{{ .Values.carku.forward.type }}</entry>
+{{- end }}
+{{- if .Values.carku.forward.exchange }}
+        <entry key='forward.exchange'>{{ .Values.carku.forward.exchange }}</entry>
+{{- end }}
+{{- if .Values.carku.forward.topic }}
+        <entry key='forward.topic'>{{ .Values.carku.forward.topic }}</entry>
+{{- end }}
+{{- if .Values.carku.forward.url }}
+        <entry key='forward.url'>{{ .Values.carku.forward.url }}</entry>
+{{- end }}
+{{- if .Values.carku.forward.retry }}
+{{- if .Values.carku.forward.retry.enable }}
+        <entry key='forward.retry.enable'>true</entry>
+{{- else }}
+        <entry key='forward.retry.enable'>false</entry>
+{{- end }}
+{{- if .Values.carku.forward.retry.delay }}
+        <entry key='forward.retry.delay'>{{ .Values.carku.forward.retry.delay }}</entry>
+{{- end }}
+{{- if .Values.carku.forward.retry.count }}
+        <entry key='forward.retry.count'>{{ .Values.carku.forward.retry.count }}</entry>
+{{- end }}
+{{- if .Values.carku.forward.retry.limit }}
+        <entry key='forward.retry.limit'>{{ .Values.carku.forward.retry.limit }}</entry>
+{{- end }}
+{{- end }}
+{{- end }}
+
+    <!-- Mail settings (sensitive parts removed) -->
+{{- if .Values.carku.mail }}
+{{- if .Values.carku.mail.debug }}
+        <entry key='mail.debug'>true</entry>
+{{- else }}
+        <entry key='mail.debug'>false</entry>
+{{- end }}
+{{- if .Values.carku.mail.transportProtocol }}
+        <entry key='mail.transport.protocol'>{{ .Values.carku.mail.transportProtocol }}</entry>
+{{- end }}
+{{- if .Values.carku.mail.smtp }}
+{{- if .Values.carku.mail.smtp.systemOnly }}
+        <entry key='mail.smtp.systemOnly'>true</entry>
+{{- else }}
+        <entry key='mail.smtp.systemOnly'>false</entry>
+{{- end }}
+{{- if .Values.carku.mail.smtp.ignoreUserConfig }}
+        <entry key='mail.smtp.ignoreUserConfig'>true</entry>
+{{- else }}
+        <entry key='mail.smtp.ignoreUserConfig'>false</entry>
+{{- end }}
+{{- if .Values.carku.mail.smtp.host }}
+        <entry key='mail.smtp.host'>{{ .Values.carku.mail.smtp.host }}</entry>
+{{- end }}
+{{- if .Values.carku.mail.smtp.port }}
+        <entry key='mail.smtp.port'>{{ .Values.carku.mail.smtp.port }}</entry>
+{{- end }}
+{{- if .Values.carku.mail.smtp.starttls }}
+{{- if .Values.carku.mail.smtp.starttls.enable }}
+        <entry key='mail.smtp.starttls.enable'>true</entry>
+{{- else }}
+        <entry key='mail.smtp.starttls.enable'>false</entry>
+{{- end }}
+{{- if .Values.carku.mail.smtp.starttls.required }}
+        <entry key='mail.smtp.starttls.required'>true</entry>
+{{- else }}
+        <entry key='mail.smtp.starttls.required'>false</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.mail.smtp.ssl }}
+{{- if .Values.carku.mail.smtp.ssl.enable }}
+        <entry key='mail.smtp.ssl.enable'>true</entry>
+{{- else }}
+        <entry key='mail.smtp.ssl.enable'>false</entry>
+{{- end }}
+{{- if .Values.carku.mail.smtp.ssl.trust }}
+        <entry key='mail.smtp.ssl.trust'>{{ .Values.carku.mail.smtp.ssl.trust }}</entry>
+{{- end }}
+{{- if .Values.carku.mail.smtp.ssl.protocols }}
+        <entry key='mail.smtp.ssl.protocols'>{{ .Values.carku.mail.smtp.ssl.protocols }}</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.mail.smtp.from }}
+        <entry key='mail.smtp.from'>{{ .Values.carku.mail.smtp.from }}</entry>
+{{- end }}
+{{- if .Values.carku.mail.smtp.fromName }}
+        <entry key='mail.smtp.fromName'>{{ .Values.carku.mail.smtp.fromName }}</entry>
+{{- end }}
+{{- end }}
+{{- end }}
+
+    <!-- Other settings -->
+{{- if .Values.carku.speedLimitGlobal }}
+        <entry key='speedLimit'>{{ .Values.carku.speedLimitGlobal }}</entry>
+{{- end }}
+{{- if .Values.carku.status }}
+{{- if .Values.carku.status.timeout }}
+        <entry key='status.timeout'>{{ .Values.carku.status.timeout }}</entry>
+{{- end }}
+{{- if .Values.carku.status.ignoreOffline }}
+        <entry key='status.ignoreOffline'>{{ .Values.carku.status.ignoreOffline }}</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.media }}
+{{- if .Values.carku.media.path }}
+        <entry key='media.path'>{{ .Values.carku.media.path }}</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.templates }}
+{{- if .Values.carku.templates.rootPath }}
+        <entry key='templates.root'>{{ .Values.carku.templates.rootPath }}</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.users }}
+{{- if .Values.carku.users.defaultDeviceLimit }}
+        <entry key='users.defaultDeviceLimit'>{{ .Values.carku.users.defaultDeviceLimit }}</entry>
+{{- end }}
+{{- if .Values.carku.users.defaultExpirationDays }}
+        <entry key='users.defaultExpirationDays'>{{ .Values.carku.users.defaultExpirationDays }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Report settings -->
+{{- if .Values.carku.report }}
+{{- if .Values.carku.report.periodLimit }}
+        <entry key='report.periodLimit'>{{ .Values.carku.report.periodLimit }}</entry>
+{{- end }}
+{{- if .Values.carku.report.fastThreshold }}
+        <entry key='report.fastThreshold'>{{ .Values.carku.report.fastThreshold }}</entry>
+{{- end }}
+{{- if .Values.carku.report.trip }}
+{{- if .Values.carku.report.trip.newLogic }}
+        <entry key='report.trip.newLogic'>true</entry>
+{{- else }}
+        <entry key='report.trip.newLogic'>false</entry>
+{{- end }}
+{{- if .Values.carku.report.trip.minDistance }}
+        <entry key='report.trip.minDistance'>{{ .Values.carku.report.trip.minDistance }}</entry>
+{{- end }}
+{{- if .Values.carku.report.trip.minDuration }}
+        <entry key='report.trip.minDuration'>{{ .Values.carku.report.trip.minDuration }}</entry>
+{{- end }}
+{{- if .Values.carku.report.trip.stopGap }}
+        <entry key='report.trip.stopGap'>{{ .Values.carku.report.trip.stopGap }}</entry>
+{{- end }}
+{{- if .Values.carku.report.trip.minimalTripDistance }}
+        <entry key='report.trip.minimalTripDistance'>{{ .Values.carku.report.trip.minimalTripDistance }}</entry>
+{{- end }}
+{{- if .Values.carku.report.trip.minimalTripDuration }}
+        <entry key='report.trip.minimalTripDuration'>{{ .Values.carku.report.trip.minimalTripDuration }}</entry>
+{{- end }}
+{{- if .Values.carku.report.trip.minimalParkingDuration }}
+        <entry key='report.trip.minimalParkingDuration'>{{ .Values.carku.report.trip.minimalParkingDuration }}</entry>
+{{- end }}
+{{- if .Values.carku.report.trip.minimalNoDataDuration }}
+        <entry key='report.trip.minimalNoDataDuration'>{{ .Values.carku.report.trip.minimalNoDataDuration }}</entry>
+{{- end }}
+{{- if .Values.carku.report.trip.useIgnition }}
+        <entry key='report.trip.useIgnition'>true</entry>
+{{- else }}
+        <entry key='report.trip.useIgnition'>false</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.report.ignoreOdometer }}
+        <entry key='report.ignoreOdometer'>true</entry>
+{{- else }}
+        <entry key='report.ignoreOdometer'>false</entry>
+{{- end }}
+{{- end }}
+
+{{- if .Values.carku.wialon }}
+{{- if .Values.carku.wialon.utf8 }}
+        <entry key='wialon.utf8'>true</entry>
+{{- else }}
+        <entry key='wialon.utf8'>false</entry>
+{{- end }}
+{{- end }}
+
+    <!-- SMS settings (sensitive parts removed) -->
+{{- if .Values.carku.sms }}
+{{- if .Values.carku.sms.http }}
+{{- if .Values.carku.sms.http.url }}
+        <entry key='sms.http.url'>{{ .Values.carku.sms.http.url }}</entry>
+{{- end }}
+{{- if .Values.carku.sms.http.template }}
+        <entry key='sms.http.template'>{{ .Values.carku.sms.http.template }}</entry>
+{{- end }}
+{{- end }}
+{{- end }}
+
+    <!-- Notificator settings -->
+{{- if .Values.carku.notificator }}
+{{- if .Values.carku.notificator.types }}
+        <entry key='notificator.types'>{{ .Values.carku.notificator.types }}</entry>
+{{- end }}
+{{- if .Values.carku.notificator.timeThreshold }}
+        <entry key='notificator.timeThreshold'>{{ .Values.carku.notificator.timeThreshold }}</entry>
+{{- end }}
+{{- if .Values.carku.notificator.firebase }}
+{{- if .Values.carku.notificator.firebase.mode }}
+        <entry key='notificator.firebase.mode'>{{ .Values.carku.notificator.firebase.mode }}</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.notificator.pushover }}
+{{- if .Values.carku.notificator.pushover.user }}
+        <entry key='notificator.pushover.user'>{{ .Values.carku.notificator.pushover.user }}</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.notificator.telegram }}
+{{- if .Values.carku.notificator.telegram.chatId }}
+        <entry key='notificator.telegram.chatId'>{{ .Values.carku.notificator.telegram.chatId }}</entry>
+{{- end }}
+{{- if .Values.carku.notificator.telegram.sendLocation }}
+        <entry key='notificator.telegram.sendLocation'>true</entry>
+{{- else }}
+        <entry key='notificator.telegram.sendLocation'>false</entry>
+{{- end }}
+{{- if .Values.carku.notificator.telegram.proxyUrl }}
+        <entry key='notificator.telegram.proxy.url'>{{ .Values.carku.notificator.telegram.proxyUrl }}</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.notificator.whatsapp }}
+{{- if .Values.carku.notificator.whatsapp.phoneNumberId }}
+        <entry key='notificator.whatsapp.phoneNumberId'>{{ .Values.carku.notificator.whatsapp.phoneNumberId }}</entry>
+{{- end }}
+{{- if .Values.carku.notificator.whatsapp.templateName }}
+        <entry key='notificator.whatsapp.templateName'>{{ .Values.carku.notificator.whatsapp.templateName }}</entry>
+{{- end }}
+{{- if .Values.carku.notificator.whatsapp.templateLanguage }}
+        <entry key='notificator.whatsapp.templateLanguage'>{{ .Values.carku.notificator.whatsapp.templateLanguage }}</entry>
+{{- end }}
+{{- end }}
+{{- end }}
+
+    <!-- Notification expiration settings -->
+{{- if .Values.carku.notification }}
+{{- if .Values.carku.notification.expiration }}
+{{- if .Values.carku.notification.expiration.user }}
+        <entry key='notification.expiration.user'>true</entry>
+{{- else }}
+        <entry key='notification.expiration.user'>false</entry>
+{{- end }}
+{{- if .Values.carku.notification.expiration.userReminder }}
+        <entry key='notification.expiration.user.reminder'>{{ .Values.carku.notification.expiration.userReminder }}</entry>
+{{- end }}
+{{- if .Values.carku.notification.expiration.device }}
+        <entry key='notification.expiration.device'>true</entry>
+{{- else }}
+        <entry key='notification.expiration.device'>false</entry>
+{{- end }}
+{{- if .Values.carku.notification.expiration.deviceReminder }}
+        <entry key='notification.expiration.device.reminder'>{{ .Values.carku.notification.expiration.deviceReminder }}</entry>
+{{- end }}
+{{- end }}
+{{- if .Values.carku.notification.blockUsers }}
+        <entry key='notification.block.users'>{{ .Values.carku.notification.blockUsers }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Location hemisphere override -->
+{{- if .Values.carku.location }}
+{{- if .Values.carku.location.latitudeHemisphere }}
+        <entry key='location.latitudeHemisphere'>{{ .Values.carku.location.latitudeHemisphere }}</entry>
+{{- end }}
+{{- if .Values.carku.location.longitudeHemisphere }}
+        <entry key='location.longitudeHemisphere'>{{ .Values.carku.location.longitudeHemisphere }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Time override -->
+{{- if .Values.carku.time }}
+{{- if .Values.carku.time.override }}
+        <entry key='time.override'>{{ .Values.carku.time.override }}</entry>
+{{- end }}
+{{- if .Values.carku.time.protocols }}
+        <entry key='time.protocols'>{{ .Values.carku.time.protocols }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Protocol selection -->
+{{- if .Values.carku.protocols }}
+{{- if .Values.carku.protocols.enable }}
+        <entry key='protocols.enable'>{{ .Values.carku.protocols.enable }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- LDAP settings -->
+{{- if .Values.carku.ldap }}
+{{- if .Values.carku.ldap.url }}
+        <entry key='ldap.url'>{{ .Values.carku.ldap.url }}</entry>
+{{- end }}
+{{- if .Values.carku.ldap.force }}
+        <entry key='ldap.force'>true</entry>
+{{- else }}
+        <entry key='ldap.force'>false</entry>
+{{- end }}
+{{- if .Values.carku.ldap.base }}
+        <entry key='ldap.base'>{{ .Values.carku.ldap.base }}</entry>
+{{- end }}
+{{- if .Values.carku.ldap.idAttribute }}
+        <entry key='ldap.idAttribute'>{{ .Values.carku.ldap.idAttribute }}</entry>
+{{- end }}
+{{- if .Values.carku.ldap.nameAttribute }}
+        <entry key='ldap.nameAttribute'>{{ .Values.carku.ldap.nameAttribute }}</entry>
+{{- end }}
+{{- if .Values.carku.ldap.mailAttribute }}
+        <entry key='ldap.mailAttribute'>{{ .Values.carku.ldap.mailAttribute }}</entry>
+{{- end }}
+{{- if .Values.carku.ldap.searchFilter }}
+        <entry key='ldap.searchFilter'>{{ .Values.carku.ldap.searchFilter }}</entry>
+{{- end }}
+{{- if .Values.carku.ldap.adminFilter }}
+        <entry key='ldap.adminFilter'>{{ .Values.carku.ldap.adminFilter }}</entry>
+{{- end }}
+{{- if .Values.carku.ldap.adminGroup }}
+        <entry key='ldap.adminGroup'>{{ .Values.carku.ldap.adminGroup }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- OpenID Connect settings -->
+{{- if .Values.carku.openid }}
+{{- if .Values.carku.openid.force }}
+        <entry key='openid.force'>true</entry>
+{{- else }}
+        <entry key='openid.force'>false</entry>
+{{- end }}
+{{- if .Values.carku.openid.allowRegistration }}
+        <entry key='openid.allowRegistration'>true</entry>
+{{- else }}
+        <entry key='openid.allowRegistration'>false</entry>
+{{- end }}
+{{- if .Values.carku.openid.clientId }}
+        <entry key='openid.clientId'>{{ .Values.carku.openid.clientId }}</entry>
+{{- end }}
+{{- if .Values.carku.openid.issuerUrl }}
+        <entry key='openid.issuerUrl'>{{ .Values.carku.openid.issuerUrl }}</entry>
+{{- end }}
+{{- if .Values.carku.openid.authUrl }}
+        <entry key='openid.authUrl'>{{ .Values.carku.openid.authUrl }}</entry>
+{{- end }}
+{{- if .Values.carku.openid.tokenUrl }}
+        <entry key='openid.tokenUrl'>{{ .Values.carku.openid.tokenUrl }}</entry>
+{{- end }}
+{{- if .Values.carku.openid.userInfoUrl }}
+        <entry key='openid.userInfoUrl'>{{ .Values.carku.openid.userInfoUrl }}</entry>
+{{- end }}
+{{- if .Values.carku.openid.groupsClaimName }}
+        <entry key='openid.groupsClaimName'>{{ .Values.carku.openid.groupsClaimName }}</entry>
+{{- end }}
+{{- if .Values.carku.openid.allowGroup }}
+        <entry key='openid.allowGroup'>{{ .Values.carku.openid.allowGroup }}</entry>
+{{- end }}
+{{- if .Values.carku.openid.adminGroup }}
+        <entry key='openid.adminGroup'>{{ .Values.carku.openid.adminGroup }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Broadcast (cluster) settings -->
+{{- if .Values.carku.broadcast }}
+{{- if .Values.carku.broadcast.type }}
+        <entry key='broadcast.type'>{{ .Values.carku.broadcast.type }}</entry>
+    {{- if .Values.carku.broadcast.interface }}
+        <entry key='broadcast.interface'>{{ .Values.carku.broadcast.interface }}</entry>
+    {{- end }}
+    {{- if .Values.carku.broadcast.address }}
+        <entry key='broadcast.address'>{{ .Values.carku.broadcast.address }}</entry>
+    {{- end }}
+    {{- if .Values.carku.broadcast.port }}
+        <entry key='broadcast.port'>{{ .Values.carku.broadcast.port }}</entry>
+    {{- end }}
+    {{- if .Values.carku.broadcast.secondary }}
+        <entry key='broadcast.secondary'>true</entry>
+    {{- else }}
+        <entry key='broadcast.secondary'>false</entry>
+    {{- end }}
+{{- end }}
+{{- else if (index .Values "redis-ha").enabled }}
+        <entry key='broadcast.type'>redis</entry>
+        <entry key='broadcast.address'>redis://{{ include "carku.fullname" . }}-redis-ha-haproxy:6379</entry>
+{{- end }}
+
+    <!-- TOTP settings -->
+{{- if .Values.carku.totp }}
+{{- if .Values.carku.totp.enable }}
+        <entry key='totpEnable'>true</entry>
+{{- else }}
+        <entry key='totpEnable'>false</entry>
+{{- end }}
+{{- if .Values.carku.totp.force }}
+        <entry key='totpForce'>true</entry>
+{{- else }}
+        <entry key='totpForce'>false</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Map matcher settings -->
+{{- if .Values.carku.mapMatcher }}
+{{- if .Values.carku.mapMatcher.enable  }}
+        <entry key='mapMatcher.enable'>true</entry>
+{{- else }}
+        <entry key='mapMatcher.enable'>false</entry>
+{{- end }}
+{{- if .Values.carku.mapMatcher.type }}
+        <entry key='mapMatcher.type'>{{ .Values.carku.mapMatcher.type }}</entry>
+{{- end }}
+{{- if .Values.carku.mapMatcher.url }}
+        <entry key='mapMatcher.url'>{{ .Values.carku.mapMatcher.url }}</entry>
+{{- end }}
+{{- end }}
+
+    <!-- Speed limit settings -->
+{{- if .Values.carku.speedLimit }}
+{{- if .Values.carku.speedLimit.enable }}
+        <entry key='speedLimit.enable'>true</entry>
+{{- else }}
+        <entry key='speedLimit.enable'>false</entry>
+{{- end }}
+{{- if .Values.carku.speedLimit.type }}
+        <entry key='speedLimit.type'>{{ .Values.carku.speedLimit.type }}</entry>
+{{- end }}
+{{- if .Values.carku.speedLimit.url }}
+        <entry key='speedLimit.url'>{{ .Values.carku.speedLimit.url }}</entry>
+{{- end }}
+{{- if .Values.carku.speedLimit.accuracy }}
+        <entry key='speedLimit.accuracy'>{{ .Values.carku.speedLimit.accuracy }}</entry>
+{{- end }}
+{{- end }}
+
+    </properties>
+{{- end }}

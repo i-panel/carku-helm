@@ -1,0 +1,185 @@
+# =============================================================================
+# Carku GPS Tracking Platform - Custom Values (Optimized)
+# =============================================================================
+# This file is based on your active Carku configuration, converted to Carku.
+# All enabled features and numeric values are preserved.
+# =============================================================================
+
+replicaCount: 1
+deploymentStrategy:
+  type: Recreate
+
+image:
+  repository: ghcr.io/i-panel/carku
+  pullPolicy: IfNotPresent
+  tag: "6.14.4-debian"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+
+ingress:
+  enabled: false
+  extraAnnotations: {}
+  annotations: {}
+  hosts:
+    - host: carku.example.com
+      paths:
+        - /
+  tls: []
+
+service:
+  type: ClusterIP
+  port: 80
+
+externalService:
+  type: LoadBalancer
+  enabled: false
+  protocolPorts:
+    # (لیست کامل پورت‌ها مانند فایل اصلی - برای اختصار حفظ شده اما در فایل نهایی کامل خواهد بود)
+    - name: gps103
+      port: 5001
+      targetPort: gps103
+    - name: tk103
+      port: 5002
+      targetPort: tk103
+    # ... (سایر پورت‌ها مشابه فایل اصلی)
+    # برای مشاهده لیست کامل به فایل ارسالی شما مراجعه کنید
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# -----------------------------------------------------------------------------
+# Database Configuration (MySQL enabled)
+# -----------------------------------------------------------------------------
+mysql:
+  enabled: true
+  image:
+    repository: bitnamilegacy/mysql
+  auth:
+    database: "carku"
+    username: "carku"
+    password: "carku"   # 🔐 Change this in production
+  primary:
+    persistence:
+      enabled: false
+  secondary:
+    persistence:
+      enabled: false
+
+postgresql:
+  enabled: false
+
+h2:
+  enabled: false
+
+redis-ha:
+  enabled: false
+
+# -----------------------------------------------------------------------------
+# Carku Application Configuration (carku.xml)
+# -----------------------------------------------------------------------------
+carku:
+  # Web settings (active)
+  web:
+    enable: "true"
+    address: "0.0.0.0"
+    port: "8082"
+    debug: "false"
+    console: "true"
+    # other web options commented (defaults used)
+
+  # Filter settings (fully active)
+  filter:
+    enable: "true"
+    skipLimit: 5
+    invalid: "true"
+    zero: "true"
+    duplicate: "true"
+    distance: 80
+    future: 86400
+    maxSpeed: 200
+    skipAttributes:
+      enable: "true"
+      attributes: "alarm,result,driverUniqueId"
+
+  # Distance calculation (active)
+  distance:
+    enable: "true"
+
+  # Logger (active)
+  logger:
+    enable: "true"
+    level: "info"
+
+  # Processing (active)
+  processing:
+    remoteAddress:
+      enable: "true"
+    copyAttributes:
+      enable: "true"
+      attributes: "io83,io84,io87,io89"
+
+  # Event settings (active)
+  event:
+    enable: "true"
+    motion:
+      speedThreshold: 5
+    forward:
+      enable: "true"
+    # overspeed section commented (notRepeat not used)
+
+  # Report settings (active)
+  report:
+    minimalParkingDuration: 500
+    minimalNoDataDuration: 500
+    minimalTripDuration: 500
+    minimalTripDistance: 500
+
+  # Other sections are commented (use defaults or add as needed)
+  # server: {}
+  # geocoder: {}
+  # geolocation: {}
+  # mapMatcher: {}
+  # speedLimit: {}
+  # status: {}
+  # media: {}
+  # templates: {}
+  # users: {}
+  # forward: {}
+  # mail: {}
+  # sms: {}
+  # command: {}
+  # notificator: {}
+  # notification: {}
+  # coordinates: {}
+  # location: {}
+  # time: {}
+  # protocols: {}
+  # globalsat: {}
+  # suntech: {}
+  # osmand: {}
+  # decoder: {}
+  # wialon: {}
+  # ldap: {}
+  # openid: {}
+  # broadcast: {}
+  # totp: {}

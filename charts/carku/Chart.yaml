@@ -1,6 +1,6 @@
 apiVersion: v2
-name: traccar
-description: A Helm chart for Traccar GPS Server
+name: carku
+description: A Helm chart for Carku GPS Server
 type: application
 version: 1.10.0
 appVersion: "6.14"
@@ -9,10 +9,15 @@ dependencies:
     version: 9.4.8
     repository: https://charts.bitnami.com/bitnami
     condition: mysql.enabled
+  - name: postgresql
+    version: 18.7.2
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
   - name: redis-ha
     version: 4.23.0
     repository: https://dandydeveloper.github.io/charts
     condition: redis-ha.enabled
 maintainers:
-  - email: laszlo.kondas@gmail.com
-    name: kondas
+  - email: borhan.d@gmail.com
+    name: Borhan
+# icon: https://raw.githubusercontent.com/traccar/traccar/master/web/logo.png

@@ -1,12 +1,13 @@
-{{- $fullName := include "traccar.fullname" . -}}
+{{- $fullName := include "carku.fullname" . -}}
 {{- $externalfullname := printf "external-%s" $fullName -}}
 
+# Service for Carku web UI
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "traccar.labels" . | nindent 4 }}
+    {{- include "carku.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -15,7 +16,7 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "traccar.selectorLabels" . | nindent 4 }}
+    {{- include "carku.selectorLabels" . | nindent 4 }}
 ---
 {{- if .Values.externalService.enabled -}}
 
@@ -24,7 +25,7 @@ kind: Service
 metadata:
   name: {{ $externalfullname }}
   labels:
-    {{- include "traccar.labels" . | nindent 4 }}
+    {{- include "carku.labels" . | nindent 4 }}
   {{- with .Values.externalService.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -43,5 +44,5 @@ spec:
   ports:
     {{- toYaml .Values.externalService.protocolPorts | nindent 4 }}
   selector:
-    {{- include "traccar.selectorLabels" . | nindent 4 }}
+    {{- include "carku.selectorLabels" . | nindent 4 }}
 {{- end }}
