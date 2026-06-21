@@ -27,7 +27,7 @@ deploymentStrategy:
 image:
   # repository - Docker image repository (GitHub Container Registry)
   # repository - مخزن ایمیج داکر (GitHub Container Registry)
-  repository: ghcr.io/i-panel/carku
+  repository: ghcr.io/carkuhub/carku
   # pullPolicy - Image pull policy: Always, IfNotPresent, Never
   # pullPolicy - سیاست کشیدن ایمیج: Always, IfNotPresent, Never
   pullPolicy: IfNotPresent
@@ -37,7 +37,7 @@ image:
   # tag - برچسب نسخه (با appVersion چارت هماهنگ شود)
   # tag - Image tag (should match chart appVersion)
   # tag - برچسب نسخه (باید با appVersion چارت هماهنگ باشد)
-  tag: "6.14.4-debian"
+  tag: "6.14.5-debian"
 
 # imagePullSecrets - Secrets for private registry access
 # imagePullSecrets - رازهای دسترسی به مخزن خصوصی
