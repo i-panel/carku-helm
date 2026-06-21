@@ -18,10 +18,10 @@ deploymentStrategy:
 
 # Container image settings
 image:
-  repository: ghcr.io/i-panel/carku
+  repository: ghcr.io/carkuhub/carku
   pullPolicy: IfNotPresent
   # Overrides the image tag (defaults to chart appVersion)
-  tag: "6.14.4-debian"
+  tag: "6.14.5-debian"
 
 # Private registry secrets
 imagePullSecrets: []

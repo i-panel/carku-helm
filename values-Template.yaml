@@ -33,7 +33,7 @@ deploymentStrategy:
 image:
   # repository - مخزن ایمیج (از GitHub Container Registry)
   # repository - Image repository (GitHub Container Registry)
-  repository: ghcr.io/i-panel/carku
+  repository: ghcr.io/carkuhub/carku
   # pullPolicy - سیاست کشیدن ایمیج (Always, IfNotPresent, Never)
   # pullPolicy - Image pull policy
   pullPolicy: IfNotPresent
@@ -42,7 +42,7 @@ image:
   flavor: "alpine"
   # tag - برچسب نسخه (با appVersion چارت هماهنگ شود)
   # tag - Image tag (should match chart appVersion)
-  tag: "6.14.1"
+  tag: "6.14.5"
 
 # imagePullSecrets - رازهای دسترسی به مخزن خصوصی
 # imagePullSecrets - Secrets for private registry access
